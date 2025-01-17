@@ -248,6 +248,7 @@ function generateLDPCMatrices() {
     return {
         generatorMatrix: G,
         parityCheckMatrix: H,
+
     };
 }
 
@@ -279,7 +280,6 @@ let message = generateRandomMessage(G.length); // Generate random message of len
 let codeword = encodeMessage(message, G); // Generate valid codeword
 let receivedWord = introduceErrors(codeword); // Introduce some erasures
 
-
 // Function to generate a random message vector of length k
 function generateRandomMessage(k) {
     return Array.from({ length: k }, () => Math.floor(Math.random() * 2));
@@ -301,6 +301,7 @@ function encodeMessage(message, G) {
 }
 
 // Function to introduce errors into codeword
+
 function introduceErrors(codeword, errorRate = 0.3) {
     const corrupted = codeword.map(bit => {
         // Randomly flip some bits to '?' based on error rate
@@ -775,7 +776,6 @@ function ensureNonEmpty(messages) {
         });
     }
 }
-
 
 // Modify NextRound() to use getCurrentRoundMessages
 function NextRound() {
