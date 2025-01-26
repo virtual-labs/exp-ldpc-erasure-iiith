@@ -256,9 +256,9 @@ function generateLDPCMatrices() {
 const width = 600;
 const height = 400;
 const nodeRadius = 10;
-const bitXShiftLabel = 40;
+const bitXShiftLabel = 100;
 const checkXShiftLabel = 15;
-const yLabelShift = 5;
+const yLabelShift = -10;
 // Add this at the beginning of your code
 let currentDirection = 'left-to-right';
 
@@ -381,15 +381,30 @@ let node = svg.append("g")
     );
 
 
-    let labels = svg.append("g")
+let labels = svg.append("g")
     .attr("class", "labels")
-    .selectAll("text")
+    .selectAll("foreignObject")
     .data(nodes)
-    .enter().append("text")
+    .enter()
+    .append("foreignObject")
     .attr("x", d => d.type === "x" ? d.x - nodeRadius - bitXShiftLabel : d.x + nodeRadius + checkXShiftLabel)
     .attr("y", d => d.y + yLabelShift)
-    .text(d => d.label); // Use the combined label instead of just id
+    .attr("width", 100)
+    .attr("height", 30)
+    .append("xhtml:div")
+    .style("font-size", "15px")
+    .html(d => {
+        if (d.type === "x") {
+            return `\\(x_{${d.id.slice(1)}}: ${d.value}\\)`;
+        }
+        if(d.type === "z"){
+            return `\\(z_{${d.id.slice(1)}}: ${d.value}\\)`;
+        }
+        return d.label;
+    });
 
+// Trigger MathJax rendering
+// MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
 // Update the positions of the links
 function updateLinks() {
