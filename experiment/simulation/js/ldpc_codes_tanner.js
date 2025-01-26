@@ -526,7 +526,7 @@ function getInitialMessages() {
                 messages.push({
                     from: node.id,
                     to: conn.target,
-                    message: `μ_{${node.id}→${conn.target}}`
+                    message: `\\(\\mu_{${node.id}\\to ${conn.target}}\\)` 
                 });
             });
         }
@@ -595,7 +595,7 @@ function getCurrentRoundMessages() {
                     messages.push({
                         from: node.id,
                         to: checkNodeId,
-                        message: `μ_{${node.id}→${checkNodeId}}`
+                        message: `\\(\\mu_{${node.id}\\to ${checkNodeId}}\\)`
                     });
                 }
             }
@@ -616,7 +616,7 @@ function getCurrentRoundMessages() {
                 messages.push({
                     from: node.id,
                     to: bitNodeId,
-                    message: `μ_{${node.id}→${bitNodeId}}`
+                    message: `\\(\\mu_{${node.id}\\to ${bitNodeId}}\\)`
                 });
             }
         });
@@ -654,7 +654,7 @@ function generateMessageOptions(correctMessages) {
                     wrongDirectionMessages.push({
                         from: node.id,
                         to: bitNodeId,
-                        message: `μ_{${node.id}→${bitNodeId}}`
+                        message: `\\(\\mu_{${node.id}\\to ${bitNodeId}}\\)`
                     });
                 }
             }
@@ -671,7 +671,7 @@ function generateMessageOptions(correctMessages) {
                     wrongDirectionMessages.push({
                         from: node.id,
                         to: checkNodeId,
-                        message: `μ_{${node.id}→${checkNodeId}}`
+                        message: `\\(\\mu_{${node.id}\\to ${checkNodeId}}\\)`
                     });
                 }
             }
@@ -698,7 +698,7 @@ function generateMessageOptions(correctMessages) {
                     invalidDegreeMessages.push({
                         from: node.id,
                         to: checkNodeId,
-                        message: `μ_{${node.id}→${checkNodeId}}`
+                        message: `\\(\\mu_{${node.id}\\to ${checkNodeId}}\\)`
                     });
                 }
             }
@@ -715,7 +715,7 @@ function generateMessageOptions(correctMessages) {
                     invalidDegreeMessages.push({
                         from: node.id,
                         to: bitNodeId,
-                        message: `μ_{${node.id}→${bitNodeId}}`
+                        message: `\\(\\mu_{${node.id}\\to ${bitNodeId}}\\)`
                     });
                 }
             }
@@ -772,7 +772,7 @@ function ensureNonEmpty(messages) {
         messages.push({
             from: randomCheckNode,
             to: randomBitNode,
-            message: `μ_{${randomCheckNode}→${randomBitNode}}`
+            message: `\\(\\mu_{${randomCheckNode}\\to ${randomBitNode}}\\)`
         });
     }
 }
@@ -864,7 +864,7 @@ function generateInvalidMessages(count) {
             messages.push({
                 from: `x${randomBit}`,
                 to: `z${randomCheck}`,
-                message: `μ_{x${randomBit}→z${randomCheck}}`
+                message: `\\(\\mu_{x${randomBit}\\to z${randomCheck}}\\)`
             });
         }
     }
