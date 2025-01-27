@@ -529,6 +529,9 @@ function updateGraph() {
         .attr("y", d => d.type === "z" ? d.y - nodeRadius : null);
 }
 
+function insertUnderscore(str) {
+    return str[0] + '_' + str.slice(1);
+}
 
 // Function to get initial messages for the first round
 function getInitialMessages() {
@@ -541,7 +544,7 @@ function getInitialMessages() {
                 messages.push({
                     from: node.id,
                     to: conn.target,
-                    message: `\\(\\mu_{${node.id}\\to ${conn.target}}\\)` 
+                    message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(conn.target)}}\\)` 
                 });
             });
         }
@@ -610,7 +613,7 @@ function getCurrentRoundMessages() {
                     messages.push({
                         from: node.id,
                         to: checkNodeId,
-                        message: `\\(\\mu_{${node.id}\\to ${checkNodeId}}\\)`
+                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}}\\)`
                     });
                 }
             }
@@ -631,7 +634,7 @@ function getCurrentRoundMessages() {
                 messages.push({
                     from: node.id,
                     to: bitNodeId,
-                    message: `\\(\\mu_{${node.id}\\to ${bitNodeId}}\\)`
+                    message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}}\\)`
                 });
             }
         });
@@ -669,7 +672,7 @@ function generateMessageOptions(correctMessages) {
                     wrongDirectionMessages.push({
                         from: node.id,
                         to: bitNodeId,
-                        message: `\\(\\mu_{${node.id}\\to ${bitNodeId}}\\)`
+                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}}\\)`
                     });
                 }
             }
@@ -686,7 +689,7 @@ function generateMessageOptions(correctMessages) {
                     wrongDirectionMessages.push({
                         from: node.id,
                         to: checkNodeId,
-                        message: `\\(\\mu_{${node.id}\\to ${checkNodeId}}\\)`
+                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}}\\)`
                     });
                 }
             }
@@ -713,7 +716,7 @@ function generateMessageOptions(correctMessages) {
                     invalidDegreeMessages.push({
                         from: node.id,
                         to: checkNodeId,
-                        message: `\\(\\mu_{${node.id}\\to ${checkNodeId}}\\)`
+                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}}\\)`
                     });
                 }
             }
@@ -730,7 +733,7 @@ function generateMessageOptions(correctMessages) {
                     invalidDegreeMessages.push({
                         from: node.id,
                         to: bitNodeId,
-                        message: `\\(\\mu_{${node.id}\\to ${bitNodeId}}\\)`
+                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}}\\)`
                     });
                 }
             }
@@ -787,7 +790,7 @@ function ensureNonEmpty(messages) {
         messages.push({
             from: randomCheckNode,
             to: randomBitNode,
-            message: `\\(\\mu_{${randomCheckNode}\\to ${randomBitNode}}\\)`
+            message: `\\(\\mu_{${insertUnderscore(randomCheckNode)}\\to ${insertUnderscore(randomBitNode)}}\\)`
         });
     }
 }
@@ -879,7 +882,7 @@ function generateInvalidMessages(count) {
             messages.push({
                 from: `x${randomBit}`,
                 to: `z${randomCheck}`,
-                message: `\\(\\mu_{x${randomBit}\\to z${randomCheck}}\\)`
+                message: `\\(\\mu_{x_${randomBit}\\to z_${randomCheck}}\\)`
             });
         }
     }
