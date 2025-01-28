@@ -248,6 +248,7 @@ function generateLDPCMatrices() {
     return {
         generatorMatrix: G,
         parityCheckMatrix: H,
+
     };
 }
 
@@ -255,9 +256,9 @@ function generateLDPCMatrices() {
 const width = 600;
 const height = 400;
 const nodeRadius = 10;
-const bitXShiftLabel = 40;
+const bitXShiftLabel = 100;
 const checkXShiftLabel = 15;
-const yLabelShift = 5;
+const yLabelShift = -10;
 // Add this at the beginning of your code
 let currentDirection = 'left-to-right';
 
@@ -278,7 +279,6 @@ const verticalOffset = 50;
 let message = generateRandomMessage(G.length); // Generate random message of length k
 let codeword = encodeMessage(message, G); // Generate valid codeword
 let receivedWord = introduceErrors(codeword); // Introduce some erasures
-
 
 // Function to generate a random message vector of length k
 function generateRandomMessage(k) {
@@ -301,6 +301,7 @@ function encodeMessage(message, G) {
 }
 
 // Function to introduce errors into codeword
+
 function introduceErrors(codeword, errorRate = 0.3) {
     const corrupted = codeword.map(bit => {
         // Randomly flip some bits to '?' based on error rate
@@ -380,15 +381,30 @@ let node = svg.append("g")
     );
 
 
-    let labels = svg.append("g")
+let labels = svg.append("g")
     .attr("class", "labels")
-    .selectAll("text")
+    .selectAll("foreignObject")
     .data(nodes)
-    .enter().append("text")
+    .enter()
+    .append("foreignObject")
     .attr("x", d => d.type === "x" ? d.x - nodeRadius - bitXShiftLabel : d.x + nodeRadius + checkXShiftLabel)
     .attr("y", d => d.y + yLabelShift)
-    .text(d => d.label); // Use the combined label instead of just id
+    .attr("width", 100)
+    .attr("height", 30)
+    .append("xhtml:div")
+    .style("font-size", "15px")
+    .html(d => {
+        if (d.type === "x") {
+            return `\\(x_{${d.id.slice(1)}}: ${d.value}\\)`;
+        }
+        if(d.type === "z"){
+            return `\\(z_{${d.id.slice(1)}}: ${d.value}\\)`;
+        }
+        return d.label;
+    });
 
+// Trigger MathJax rendering
+// MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
 // Update the positions of the links
 function updateLinks() {
@@ -480,261 +496,560 @@ updateLinks();
 adjustSVGSize();
 
 
-// Function to update the Tanner graph after peeling a node
-function updateGraph() {
-    // Update the positions of the nodes and links after peeling
-    nodes.forEach(node => {
-        if (node.peeled) {
-            // Remove the node from the graph (visual removal)
-            d3.select(`#${node.id}`).remove();
-        }
-    });
+// // Function to update the Tanner graph after peeling a node
+// function updateGraph() {
+//     // Update the positions of the nodes and links after peeling
+//     nodes.forEach(node => {
+//         if (node.peeled) {
+//             // Remove the node from the graph (visual removal)
+//             d3.select(`#${node.id}`).remove();
+//         }
+//     });
 
-    links = links.filter(link => {
-        // Remove links to peeled nodes
-        return !bitNodes.some(n => n.peeled && (link.source === n.id || link.target === n.id)) &&
-            !checkNodes.some(n => n.peeled && (link.source === n.id || link.target === n.id));
-    });
+//     links = links.filter(link => {
+//         // Remove links to peeled nodes
+//         return !bitNodes.some(n => n.peeled && (link.source === n.id || link.target === n.id)) &&
+//             !checkNodes.some(n => n.peeled && (link.source === n.id || link.target === n.id));
+//     });
 
-    // Update the SVG with the remaining nodes and links
-    svg.selectAll("line").data(links).enter().append("line")
-        .attr("stroke-width", 2)
-        .attr("stroke", "#999");
+//     // Update the SVG with the remaining nodes and links
+//     svg.selectAll("line").data(links).enter().append("line")
+//         .attr("stroke-width", 2)
+//         .attr("stroke", "#999");
 
-    svg.selectAll("circle, rect").data(nodes).enter()
-        .append(d => document.createElementNS("http://www.w3.org/2000/svg", d.type === "x" ? "circle" : "rect"))
-        .attr("r", d => d.type === "x" ? nodeRadius : null)
-        .attr("width", d => d.type === "z" ? nodeRadius * 2 : null)
-        .attr("height", d => d.type === "z" ? nodeRadius * 2 : null)
-        .attr("fill", d => d.type === "x" ? "blue" : "green")
-        .attr("cx", d => d.type === "x" ? d.x : null)
-        .attr("cy", d => d.type === "x" ? d.y : null)
-        .attr("x", d => d.type === "z" ? d.x - nodeRadius : null)
-        .attr("y", d => d.type === "z" ? d.y - nodeRadius : null);
-}
+//     svg.selectAll("circle, rect").data(nodes).enter()
+//         .append(d => document.createElementNS("http://www.w3.org/2000/svg", d.type === "x" ? "circle" : "rect"))
+//         .attr("r", d => d.type === "x" ? nodeRadius : null)
+//         .attr("width", d => d.type === "z" ? nodeRadius * 2 : null)
+//         .attr("height", d => d.type === "z" ? nodeRadius * 2 : null)
+//         .attr("fill", d => d.type === "x" ? "blue" : "green")
+//         .attr("cx", d => d.type === "x" ? d.x : null)
+//         .attr("cy", d => d.type === "x" ? d.y : null)
+//         .attr("x", d => d.type === "z" ? d.x - nodeRadius : null)
+//         .attr("y", d => d.type === "z" ? d.y - nodeRadius : null);
+// }
 
-// Function to get initial messages for the first round
-function getInitialMessages() {
-    let messages = [];
-    bitNodes.forEach(node => {
-        if (node.value === '?') {
-            // Find connected check nodes
-            const connections = links.filter(link => link.source === node.id);
-            connections.forEach(conn => {
-                messages.push({
-                    decoded: node.id,
-                    to: conn.target,
-                    message: `μ_{${node.id}→${conn.target}}`
-                });
-            });
-        }
-    });
-    return messages;
-}
+// function insertUnderscore(str) {
+//     return str[0] + '_' + str.slice(1);
+// }
 
-// Initialize the graph with first round options
-generateMessageOptions(getInitialMessages());
+// // Function to get initial messages for the first round
+// function getInitialMessages() {
+//     let messages = [];
+//     bitNodes.forEach(node => {
+//         if (node.value === '?') {
+//             // Find connected check nodes
+//             const connections = links.filter(link => link.source === node.id);
+//             connections.forEach(conn => {
+//                 messages.push({
+//                     from: node.id,
+//                     to: conn.target,
+//                     message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(conn.target)}}\\)` 
+//                 });
+//             });
+//         }
+//     });
+//     return messages;
+// }
 
-// Update graph visualization for a round
-function updateGraphForRound(peeledNodes) {
-    peeledNodes.forEach(node => {
-        // Highlight peeled nodes
-        const nodeElement = svg.select(`[id='${node.id}']`);
-        nodeElement.transition().duration(500).attr("fill", "#ff6b6b").attr("opacity", 0.6);
 
-        // Fade connected links
-        const affectedLinks = links.filter(link => link.source === node.id || link.target === node.id);
-        affectedLinks.forEach(link => {
-            svg.selectAll("line")
-                .filter(l => l.source === link.source && l.target === link.target)
-                .transition().duration(500).attr("stroke", "#ddd").attr("opacity", 0.3);
-        });
+// // Initialize the graph with first round options
+// generateMessageOptions(getInitialMessages());
 
-        // Update node labels
-        svg.select(`text#label-${node.id}`).text(`${node.id} (Peeled)`);
-    });
+// function updateGraphForRound(peeledNodes) {
+//     // Update visual representation for all peeled nodes
+//     peeledNodes.forEach(node => {
+//         const nodeElement = svg.select(`[id='${node.id}']`);
+//         nodeElement
+//             .transition()
+//             .duration(500)
+//             .attr("fill", "#ff6b6b")
+//             .attr("opacity", 0.6);
 
-    // Remove links for peeled nodes
-    links = links.filter(link =>
-        !peeledNodes.some(node => link.source === node.id || link.target === node.id)
-    );
-}
+//         // Update all connected links
+//         const affectedLinks = links.filter(link =>
+//             link.source === node.id || link.target === node.id
+//         );
 
-// Get valid messages for the current round
-function getCurrentRoundMessages() {
-    let messages = [];
+//         affectedLinks.forEach(link => {
+//             svg.selectAll("line")
+//                 .filter(l => l.source === link.source && l.target === link.target)
+//                 .transition()
+//                 .duration(500)
+//                 .attr("stroke", "#ddd")
+//                 .attr("opacity", 0.3);
+//         });
 
-    if (currentDirection === 'left-to-right') {
-        bitNodes.forEach(node => {
-            if (node.peeled || node.value !== '?') return;
+//         // Update labels
+//         svg.select(`text#label-${node.id}`)
+//             .text(`${node.id} (Peeled)`);
+//     });
 
-            const connections = links.filter(link =>
-                link.source === node.id &&
-                !checkNodes.find(n => n.id === link.target).peeled
-            );
+//     // Update links data structure
+//     links = links.filter(link =>
+//         !peeledNodes.some(node =>
+//             link.source === node.id || link.target === node.id
+//         )
+//     );
+// }
 
-            if (connections.length === 1) {
-                messages.push({
-                    decoded: node.id,
-                    to: connections[0].target,
-                    message: `μ_{${node.id}→${connections[0].target}}`
-                });
+// // Function to get valid messages for current round
+// function getCurrentRoundMessages() {
+//     let messages = [];
+    
+//     if (currentDirection === 'left-to-right') {
+//         // Get messages from erasure bit nodes to check nodes
+//         bitNodes.forEach(node => {
+//             if (node.peeled) return;
+//             if (node.value === '?') {
+//                 // Count unpeeled connections
+//                 const connections = links.filter(link =>
+//                     link.source === node.id &&
+//                     !checkNodes.find(n => n.id === link.target).peeled
+//                 );
+                
+//                 if (connections.length === 1) {
+//                     const checkNodeId = connections[0].target;
+//                     messages.push({
+//                         from: node.id,
+//                         to: checkNodeId,
+//                         message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}}\\)`
+//                     });
+//                 }
+//             }
+//         });
+//     } else {
+//         // Get messages from check nodes to bit nodes
+//         checkNodes.forEach(node => {
+//             if (node.peeled) return;
+            
+//             // Count unpeeled connections
+//             const connections = links.filter(link =>
+//                 link.target === node.id &&
+//                 !bitNodes.find(n => n.id === link.source).peeled
+//             );
+            
+//             if (connections.length === 1) {
+//                 const bitNodeId = connections[0].source;
+//                 messages.push({
+//                     from: node.id,
+//                     to: bitNodeId,
+//                     message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}}\\)`
+//                 });
+//             }
+//         });
+//     }
+    
+//     return messages;
+// }
+
+// function generateMessageOptions(correctMessages) {
+//     // Get the form element
+//     const form = document.getElementById('form1');
+//     form.innerHTML = '';
+
+//     // Create 4 options, only one with all correct messages
+//     const options = [];
+
+//     // Option 1: All correct messages (the right answer)
+//     options.push({
+//         id: 'correct',
+//         messages: correctMessages,
+//         label: 'Messages passing in this round:'
+//     });
+
+//     // Option 2: Messages that would be valid in the wrong direction
+//     const wrongDirectionMessages = [];
+//     if (currentDirection === 'left-to-right') {
+//         checkNodes.forEach(node => {
+//             if (!node.peeled) {
+//                 const connections = links.filter(link =>
+//                     link.target === node.id &&
+//                     !bitNodes.find(n => n.id === link.source).peeled
+//                 );
+//                 if (connections.length === 1) {
+//                     const bitNodeId = connections[0].source;
+//                     wrongDirectionMessages.push({
+//                         from: node.id,
+//                         to: bitNodeId,
+//                         message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}}\\)`
+//                     });
+//                 }
+//             }
+//         });
+//     } else {
+//         bitNodes.forEach(node => {
+//             if (!node.peeled && node.value === '?') {
+//                 const connections = links.filter(link =>
+//                     link.source === node.id &&
+//                     !checkNodes.find(n => n.id === link.target).peeled
+//                 );
+//                 if (connections.length === 1) {
+//                     const checkNodeId = connections[0].target;
+//                     wrongDirectionMessages.push({
+//                         from: node.id,
+//                         to: checkNodeId,
+//                         message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}}\\)`
+//                     });
+//                 }
+//             }
+//         });
+//     }
+//     ensureNonEmpty(wrongDirectionMessages);
+//     options.push({
+//         id: 'wrong-direction',
+//         messages: wrongDirectionMessages,
+//         label: 'Messages passing in this round:'
+//     });
+
+//     // Option 3: Messages from nodes with degree > 1
+//     const invalidDegreeMessages = [];
+//     if (currentDirection === 'left-to-right') {
+//         bitNodes.forEach(node => {
+//             if (!node.peeled && node.value === '?') {
+//                 const connections = links.filter(link =>
+//                     link.source === node.id &&
+//                     !checkNodes.find(n => n.id === link.target).peeled
+//                 );
+//                 if (connections.length > 1) {
+//                     const checkNodeId = connections[0].target;
+//                     invalidDegreeMessages.push({
+//                         from: node.id,
+//                         to: checkNodeId,
+//                         message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}}\\)`
+//                     });
+//                 }
+//             }
+//         });
+//     } else {
+//         checkNodes.forEach(node => {
+//             if (!node.peeled) {
+//                 const connections = links.filter(link =>
+//                     link.target === node.id &&
+//                     !bitNodes.find(n => n.id === link.source).peeled
+//                 );
+//                 if (connections.length > 1) {
+//                     const bitNodeId = connections[0].source;
+//                     invalidDegreeMessages.push({
+//                         from: node.id,
+//                         to: bitNodeId,
+//                         message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}}\\)`
+//                     });
+//                 }
+//             }
+//         });
+//     }
+//     ensureNonEmpty(invalidDegreeMessages);
+//     options.push({
+//         id: 'invalid-degree',
+//         messages: invalidDegreeMessages.slice(0, correctMessages.length),
+//         label: 'Messages passing in this round:'
+//     });
+
+//     // Option 4: Messages between unconnected nodes
+//     const invalidMessages = generateInvalidMessages(correctMessages.length);
+//     ensureNonEmpty(invalidMessages);
+//     options.push({
+//         id: 'invalid',
+//         messages: invalidMessages,
+//         label: 'Messages passing in this round:'
+//     });
+
+//     // Shuffle options
+//     const shuffledOptions = shuffleArray(options);
+
+//     // Add options to form
+//     shuffledOptions.forEach((option, index) => {
+//         const div = document.createElement('div');
+//         div.className = 'option';
+
+//         const radio = document.createElement('input');
+//         radio.type = 'radio';
+//         radio.name = 'message-set';
+//         radio.id = option.id;
+//         radio.value = index;
+
+//         const label = document.createElement('label');
+//         label.htmlFor = option.id;
+//         label.innerHTML = `${option.label}<br>` +
+//             option.messages.map(msg => msg.message).join(', ');
+
+//         div.appendChild(radio);
+//         div.appendChild(label);
+//         form.appendChild(div);
+//     });
+// }
+
+// function ensureNonEmpty(messages) {
+//     if (messages.length === 0) {
+//         // Generate a random check node ID and bit node ID
+//         const randomCheckNode = `x${Math.floor(Math.random() * checkNodes.length)}`;
+//         const randomBitNode = `z${Math.floor(Math.random() * bitNodes.length)}`;
+
+//         // Add a placeholder message
+//         messages.push({
+//             from: randomCheckNode,
+//             to: randomBitNode,
+//             message: `\\(\\mu_{${insertUnderscore(randomCheckNode)}\\to ${insertUnderscore(randomBitNode)}}\\)`
+//         });
+//     }
+// }
+
+// // Modify NextRound() to use getCurrentRoundMessages
+// function NextRound() {
+//     const observation = document.getElementById("tannerQuestionObservation");
+//     const form = document.getElementById('form1');
+//     const selectedOption = Array.from(form.elements).find(el => el.checked);
+
+//     if (!selectedOption) {
+//         observation.innerHTML = "Please select an option before proceeding.";
+//         observation.style.color = "red";
+//         return;
+//     }
+
+//     // Get the current valid messages
+//     const currentMessages = getCurrentRoundMessages();
+
+//     if (currentMessages.length === 0) {
+//         observation.innerHTML = "Decoding complete! No more nodes to peel.";
+//         observation.style.color = "green";
+//         return;
+//     }
+
+//     // Check if the selected option is correct
+//     if (selectedOption.id !== 'correct') {
+//         if (observation.innerHTML === "Incorrect. Please try again.") {
+//             observation.innerHTML = "Still incorrect. Please review your choice carefully.";
+//         } else {
+//             observation.innerHTML = "Incorrect. Please try again.";
+//         }
+//         observation.style.color = "red";
+//         return;
+//     }
+
+//     // Correct option selected - proceed with the round
+//     observation.innerHTML = "Correct! Processing next round...";
+//     observation.style.color = "green";
+
+//     // Peel the nodes and update the graph
+//     let peeledNodes = [];
+//     if (currentDirection === 'left-to-right') {
+//         bitNodes.forEach(node => {
+//             if (!node.peeled && node.value === '?' && getNodeDegrees(node.id) === 1) {
+//                 node.peeled = true;
+//                 peeledNodes.push(node);
+//             }
+//         });
+//     } else {
+//         checkNodes.forEach(node => {
+//             if (!node.peeled && getNodeDegrees(node.id) === 1) {
+//                 node.peeled = true;
+//                 peeledNodes.push(node);
+//             }
+//         });
+//     }
+
+//     // Update graph visualization
+//     updateGraphForRound(peeledNodes);
+    
+//     // Switch direction and prepare for next round
+//     currentDirection = (currentDirection === 'left-to-right') ? 'right-to-left' : 'left-to-right';
+//     currentRound++;
+    
+//     // Generate options for the next valid messages
+//     const nextMessages = getCurrentRoundMessages();
+//     if (nextMessages.length > 0) {
+//         generateMessageOptions(nextMessages);
+//     } else {
+//         observation.innerHTML = "Decoding complete! No more nodes to peel.";
+//         observation.style.color = "green";
+//     }
+    
+//     // Reset the form selection
+//     form.reset();
+// }
+
+// function generateInvalidMessages(count) {
+//     const messages = [];
+//     for (let i = 0; i < count; i++) {
+//         const randomBit = Math.floor(Math.random() * bitNodes.length);
+//         const randomCheck = Math.floor(Math.random() * checkNodes.length);
+//         // Ensure this is not an actual connection
+//         if (!links.some(link =>
+//             link.source === `x${randomBit}` &&
+//             link.target === `z${randomCheck}`
+//         )) {
+//             messages.push({
+//                 from: `x${randomBit}`,
+//                 to: `z${randomCheck}`,
+//                 message: `\\(\\mu_{x_${randomBit}\\to z_${randomCheck}}\\)`
+//             });
+//         }
+//     }
+//     return messages;
+// }
+
+// function shuffleArray(array) {
+//     for (let i = array.length - 1; i > 0; i--) {
+//         const j = Math.floor(Math.random() * (i + 1));
+//         [array[i], array[j]] = [array[j], array[i]];
+//     }
+//     return array;
+// }
+
+
+
+// // Helper function to count current node degrees
+// function getNodeDegrees(nodeId) {
+//     return links.filter(link =>
+//         (link.source === nodeId || link.target === nodeId) &&
+//         !bitNodes.find(n => n.id === link.source).peeled &&
+//         !checkNodes.find(n => n.id === link.target).peeled
+//     ).length;
+// }
+
+// // Call this function to start the iterative peeling process
+// // nextRound();
+
+function runPeelingDecoder(receivedWord, H) {
+    let decodedWord = [...receivedWord];
+    let remainingErasures = true;
+    let fullyDecoded = true;
+    
+    while (remainingErasures) {
+        remainingErasures = false;
+        // Check each bit node
+        for (let j = 0; j < decodedWord.length; j++) {
+            if (decodedWord[j] === '?') {
+                // Count connected check nodes
+                let connections = 0;
+                let checkIndex = -1;
+                for (let i = 0; i < H.length; i++) {
+                    if (H[i][j] === 1) {
+                        connections++;
+                        checkIndex = i;
+                    }
+                }
+                // If only one connection, can decode
+                if (connections === 1) {
+                    // Calculate bit value based on check equation
+                    let sum = 0;
+                    for (let k = 0; k < decodedWord.length; k++) {
+                        if (k !== j && H[checkIndex][k] === 1 && decodedWord[k] !== '?') {
+                            sum = (sum + parseInt(decodedWord[k])) % 2;
+                        }
+                    }
+                    decodedWord[j] = sum.toString();
+                    remainingErasures = true;
+                }
             }
-        });
-    } else {
-        checkNodes.forEach(node => {
-            if (node.peeled) return;
-
-            const connections = links.filter(link =>
-                link.target === node.id &&
-                !bitNodes.find(n => n.id === link.source).peeled
-            );
-
-            if (connections.length === 1) {
-                messages.push({
-                    decoded: node.id,
-                    to: connections[0].source,
-                    message: `μ_{${node.id}→${connections[0].source}}`
-                });
-            }
-        });
+        }
     }
-
-    return messages;
-}
-
-// Generate message options for the user to select
-function generateMessageOptions(correctMessages) {
-    const form = document.getElementById('form1');
-    form.innerHTML = '';
-    const options = [];
-
-    // Option 1: Correct messages
-    options.push({
-        id: 'correct',
-        messages: correctMessages.map(msg => ({ decoded: msg.decoded, checkNode: msg.to })),
-        label: 'Nodes decoded in this round:'
-    });
-
-    // Option 2: Messages in the wrong direction
-    const wrongDirectionMessages = getWrongDirectionMessages();
-    ensureNonEmpty(wrongDirectionMessages);
-    options.push({
-        id: 'wrong-direction',
-        messages: wrongDirectionMessages,
-        label: 'Nodes decoded in this round:'
-    });
-
-    // Option 3: Messages with degree > 1
-    const invalidDegreeMessages = getInvalidDegreeMessages(correctMessages.length);
-    ensureNonEmpty(invalidDegreeMessages);
-    options.push({
-        id: 'invalid-degree',
-        messages: invalidDegreeMessages,
-        label: 'Nodes decoded in this round:'
-    });
-
-    // Option 4: Messages between unconnected nodes
-    const invalidMessages = generateInvalidMessages(correctMessages.length);
-    ensureNonEmpty(invalidMessages);
-    options.push({
-        id: 'invalid',
-        messages: invalidMessages.map(msg => ({ decoded: msg.from, checkNode: msg.to })),
-        label: 'Nodes decoded in this round:'
-    });
-
-    // Shuffle and display options
-    shuffleArray(options).forEach(option => {
-        const div = document.createElement('div');
-        div.className = 'option';
-
-        const radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.name = 'message-set';
-        radio.id = option.id;
-
-        const label = document.createElement('label');
-        label.htmlFor = option.id;
-        label.innerHTML = `${option.label}<br>${option.messages.map(msg => msg.checkNode).join(', ')}`;
-
-        div.appendChild(radio);
-        div.appendChild(label);
-        form.appendChild(div);
-    });
-}
-
-// Ensure a message list is not empty by adding a placeholder
-function ensureNonEmpty(messages) {
-    if (messages.length === 0) {
-        messages.push({
-            decoded: `x${Math.floor(Math.random() * bitNodes.length)}`,
-            checkNode: `z${Math.floor(Math.random() * checkNodes.length)}`
-        });
+    
+    // Check if any erasures remain
+    if (decodedWord.includes('?')) {
+        fullyDecoded = false;
     }
+    
+    return {
+        decodedWord,
+        fullyDecoded
+    };
 }
 
-// Handle the user's selection and proceed to the next round
-function NextRound() {
-    const observation = document.getElementById("tannerQuestionObservation");
-    const form = document.getElementById('form1');
-    const selectedOption = Array.from(form.elements).find(el => el.checked);
-
-    if (!selectedOption) {
-        observation.innerHTML = "Please select an option before proceeding.";
-        observation.style.color = "red";
-        return;
+// Generate random incorrect codewords
+function generateIncorrectOption(length) {
+    const codeword = Array(length).fill('0');
+    const numErrors = Math.floor(Math.random() * 3) + 1; // 1-3 errors
+    const hasErasures = Math.random() < 0.5;
+    
+    // Introduce random bit flips
+    for (let i = 0; i < numErrors; i++) {
+        const pos = Math.floor(Math.random() * length);
+        if (hasErasures && Math.random() < 0.3) {
+            codeword[pos] = '?';
+        } else {
+            codeword[pos] = (parseInt(codeword[pos]) ^ 1).toString();
+        }
     }
+    
+    return {
+        codeword,
+        fullyDecoded: !hasErasures
+    };
+}
 
-    const currentMessages = getCurrentRoundMessages();
+// // Original received word from the code
+// const receivedWord = ['?', '1', '?', '0', '1', '?', '0'];
 
-    if (currentMessages.length === 0) {
-        observation.innerHTML = "Decoding complete! No more nodes to peel.";
-        observation.style.color = "green";
-        return;
+// // H matrix from the code
+// const H = [
+//     [1, 1, 0, 1, 1, 0, 0],
+//     [1, 0, 1, 0, 0, 1, 0],
+//     [0, 1, 1, 1, 0, 0, 1]
+// ];
+
+// Get correct decoded result
+const correctResult = runPeelingDecoder(receivedWord, H);
+
+const form = document.getElementById('form1');
+form.innerHTML = '';
+
+// Generate options
+const options = [
+    {
+        codeword: correctResult.decodedWord.join(''),
+        status: correctResult.fullyDecoded ? "fully decoded" : "partially decoded",
+        correct: true
+    },
+    {
+        codeword: generateIncorrectOption(7).codeword.join(''),
+        status: "fully decoded",
+        correct: false
+    },
+    {
+        codeword: generateIncorrectOption(7).codeword.join(''),
+        status: "partially decoded",
+        correct: false
+    },
+    {
+        codeword: generateIncorrectOption(7).codeword.join(''),
+        status: Math.random() < 0.5 ? "fully decoded" : "partially decoded",
+        correct: false
     }
+];
 
-    if (selectedOption.id !== 'correct') {
-        observation.innerHTML = "Incorrect. Please try again.";
-        observation.style.color = "red";
-        return;
-    }
+const formattedOptions = options.map((option, index) => ({
+    id: `option-${index}`,
+    messages: [{
+        message: `${option.codeword}, ${option.status}`
+    }],
+    label: 'Decoded codeword:',
+    correct: option.correct
+}));
 
-    observation.innerHTML = "Correct! Processing next round...";
-    observation.style.color = "green";
+// Shuffle options
+const shuffledOptions = shuffleArray(formattedOptions);
 
-    const peeledNodes = peelNodesForRound();
-    updateGraphForRound(peeledNodes);
+shuffledOptions.forEach((option, index) => {
+    const div = document.createElement('div');
+    div.className = 'option';
 
-    currentDirection = currentDirection === 'left-to-right' ? 'right-to-left' : 'left-to-right';
-    currentRound++;
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'decoded-codeword';
+    radio.id = option.id;
+    radio.value = index;
 
-    const nextMessages = getCurrentRoundMessages();
-    if (nextMessages.length > 0) {
-        generateMessageOptions(nextMessages);
-    } else {
-        observation.innerHTML = "Decoding complete! No more nodes to peel.";
-        observation.style.color = "green";
-    }
+    const label = document.createElement('label');
+    label.htmlFor = option.id;
+    label.innerHTML = `${option.label}<br>` +
+        option.messages.map(msg => msg.message).join(', ');
 
-    form.reset();
-}
-
-// Utility functions for specific scenarios
-function getWrongDirectionMessages() {
-    // Generate messages in the wrong direction
-}
-
-function getInvalidDegreeMessages(count) {
-    // Generate messages with degree > 1
-}
-
-function generateInvalidMessages(count) {
-    // Generate messages for unconnected nodes
-}
-
-function peelNodesForRound() {
-    // Determine and peel nodes for the current round
-}
+    div.appendChild(radio);
+    div.appendChild(label);
+    form.appendChild(div);
+});
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -744,3 +1059,9 @@ function shuffleArray(array) {
     return array;
 }
 
+console.log("Original received word:", receivedWord.join(''));
+console.log("\nDecoding options:");
+shuffledOptions.forEach((option, index) => {
+    console.log(`Decoded codeword: ${option.messages[0].message}`);
+});
+console.log("\nCorrect decode:", shuffledOptions.findIndex(opt => opt.correct));
