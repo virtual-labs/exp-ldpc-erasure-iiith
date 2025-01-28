@@ -389,6 +389,7 @@ let labels = svg.append("g")
     .append("foreignObject")
     .attr("x", d => d.type === "x" ? d.x - nodeRadius - bitXShiftLabel : d.x + nodeRadius + checkXShiftLabel)
     .attr("y", d => d.y + yLabelShift)
+    .attr("id", d => d.id)
     .attr("width", 100)
     .attr("height", 30)
     .append("xhtml:div")
@@ -434,10 +435,15 @@ function dragged(event, d) {
         .attr("y", d.type === "z" ? d.y - nodeRadius : null);
 
     // Update labels positions with the combined ID and value
+    console.log(d.id);
+    for (let l of labels) {
+        console.log(l.id);
+        break;
+    }
     labels.filter(l => l.id === d.id)
         .attr("x", d.type === "x" ? d.x - nodeRadius - bitXShiftLabel : d.x + nodeRadius + checkXShiftLabel)
         .attr("y", d.y + yLabelShift)
-        .text(d.label);
+        .attr("html", d.html);
 
     updateLinks();
 }
