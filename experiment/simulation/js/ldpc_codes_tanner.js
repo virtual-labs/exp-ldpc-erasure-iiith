@@ -333,7 +333,7 @@ let checkNodes = H.map((_, i) => ({
     x: checkNodeStartX,
     y: i * checkNodeSpacingY + verticalOffset,
     peeled: false,
-    value: '?', // Initially all check nodes have unknown values
+    value: '0', // Initially all check nodes have unknown values
     label: `z${i}: ?` // Combined ID and value label
 }));
 
@@ -435,11 +435,7 @@ function dragged(event, d) {
         .attr("y", d.type === "z" ? d.y - nodeRadius : null);
 
     // Update labels positions with the combined ID and value
-    console.log(d.id);
-    for (let l of labels) {
-        console.log(l.id);
-        break;
-    }
+
     labels.filter(l => l.id === d.id)
         .attr("x", d.type === "x" ? d.x - nodeRadius - bitXShiftLabel : d.x + nodeRadius + checkXShiftLabel)
         .attr("y", d.y + yLabelShift)

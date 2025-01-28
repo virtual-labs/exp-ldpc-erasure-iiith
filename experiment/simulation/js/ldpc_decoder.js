@@ -333,7 +333,7 @@ let checkNodes = H.map((_, i) => ({
     x: checkNodeStartX,
     y: i * checkNodeSpacingY + verticalOffset,
     peeled: false,
-    value: '?', // Initially all check nodes have unknown values
+    value: '0', // Initially all check nodes have unknown values
     label: `z${i}: ?` // Combined ID and value label
 }));
 
