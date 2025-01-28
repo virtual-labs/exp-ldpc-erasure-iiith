@@ -913,44 +913,56 @@ adjustSVGSize();
 
 function runPeelingDecoder(receivedWord, H) {
     let decodedWord = [...receivedWord];
+    let checkNodeDegrees = Array(H.length).fill(0); // Store degrees of each check node
     let remainingErasures = true;
-    let fullyDecoded = true;
-    
+
+    // Initialize checkNodeDegrees to count the number of unknown bits in each check node
+    for (let i = 0; i < H.length; i++) {
+        for (let j = 0; j < decodedWord.length; j++) {
+            if (H[i][j] === 1 && decodedWord[j] === '?') {
+                checkNodeDegrees[i]++;
+            }
+        }
+    }
+
     while (remainingErasures) {
         remainingErasures = false;
-        // Check each bit node
-        for (let j = 0; j < decodedWord.length; j++) {
-            if (decodedWord[j] === '?') {
-                // Count connected check nodes
-                let connections = 0;
-                let checkIndex = -1;
-                for (let i = 0; i < H.length; i++) {
+
+        for (let i = 0; i < H.length; i++) {
+            if (checkNodeDegrees[i] === 1) {
+                // Find the single unknown bit in this check node
+                let unknownBitIndex = -1;
+                let sum = 0;
+
+                for (let j = 0; j < decodedWord.length; j++) {
                     if (H[i][j] === 1) {
-                        connections++;
-                        checkIndex = i;
-                    }
-                }
-                // If only one connection, can decode
-                if (connections === 1) {
-                    // Calculate bit value based on check equation
-                    let sum = 0;
-                    for (let k = 0; k < decodedWord.length; k++) {
-                        if (k !== j && H[checkIndex][k] === 1 && decodedWord[k] !== '?') {
-                            sum = (sum + parseInt(decodedWord[k])) % 2;
+                        if (decodedWord[j] === '?') {
+                            unknownBitIndex = j;
+                        } else {
+                            sum = (sum + parseInt(decodedWord[j])) % 2; // Add the known bits
                         }
                     }
-                    decodedWord[j] = sum.toString();
+                }
+
+                if (unknownBitIndex !== -1) {
+                    // Resolve the unknown bit
+                    decodedWord[unknownBitIndex] = (sum === 0 ? '0' : '1');
                     remainingErasures = true;
+
+                    // Update the degrees of connected check nodes
+                    for (let k = 0; k < H.length; k++) {
+                        if (H[k][unknownBitIndex] === 1) {
+                            checkNodeDegrees[k]--;
+                        }
+                    }
                 }
             }
         }
     }
-    
+
     // Check if any erasures remain
-    if (decodedWord.includes('?')) {
-        fullyDecoded = false;
-    }
-    
+    let fullyDecoded = !decodedWord.includes('?');
+
     return {
         decodedWord,
         fullyDecoded
@@ -1002,21 +1014,14 @@ const options = [
         status: correctResult.fullyDecoded ? "fully decoded" : "partially decoded",
         correct: true
     },
-    {
-        codeword: generateIncorrectOption(7).codeword.join(''),
-        status: "fully decoded",
-        correct: false
-    },
-    {
-        codeword: generateIncorrectOption(7).codeword.join(''),
-        status: "partially decoded",
-        correct: false
-    },
-    {
-        codeword: generateIncorrectOption(7).codeword.join(''),
-        status: Math.random() < 0.5 ? "fully decoded" : "partially decoded",
-        correct: false
-    }
+    ...Array(3).fill(null).map(() => {
+        const generatedOption = generateIncorrectOption(7).codeword.join('');
+        return {
+            codeword: generatedOption,
+            status: generatedOption.includes('?') ? "partially decoded" : "fully decoded",
+            correct: false
+        };
+    })
 ];
 
 const formattedOptions = options.map((option, index) => ({
@@ -1065,3 +1070,30 @@ shuffledOptions.forEach((option, index) => {
     console.log(`Decoded codeword: ${option.messages[0].message}`);
 });
 console.log("\nCorrect decode:", shuffledOptions.findIndex(opt => opt.correct));
+
+function NextRound() {
+    const observation = document.getElementById("tannerQuestionObservation");
+    const form = document.getElementById('form1');
+    const selectedOption = Array.from(form.elements).find(el => el.checked);
+
+    if (!selectedOption) {
+        observation.innerHTML = "Please select an option before proceeding.";
+        observation.style.color = "red";
+        return;
+    }
+
+    // Check if the selected option is correct
+    if (selectedOption.correct !== true) {
+        if (observation.innerHTML === "Incorrect. Please try again.") {
+            observation.innerHTML = "Still incorrect. Please review your choice carefully.";
+        } else {
+            observation.innerHTML = "Incorrect. Please try again.";
+        }
+        observation.style.color = "red";
+        return;
+    }
+
+    // Correct option selected - proceed with the round
+    observation.innerHTML = "Correct!";
+    observation.style.color = "green";
+}
