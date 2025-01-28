@@ -1046,6 +1046,7 @@ shuffledOptions.forEach((option, index) => {
     radio.name = 'decoded-codeword';
     radio.id = option.id;
     radio.value = index;
+    radio.correct = option.correct;
 
     const label = document.createElement('label');
     label.htmlFor = option.id;
@@ -1085,7 +1086,7 @@ function NextRound() {
 
     // Check if the selected option is correct
     if (selectedOption.correct !== true) {
-        if (observation.innerHTML === "Incorrect. Please try again.") {
+        if (observation.innerHTML != "Correct!") {
             observation.innerHTML = "Still incorrect. Please review your choice carefully.";
         } else {
             observation.innerHTML = "Incorrect. Please try again.";
