@@ -389,6 +389,7 @@ let labels = svg.append("g")
     .append("foreignObject")
     .attr("x", d => d.type === "x" ? d.x - nodeRadius - bitXShiftLabel : d.x + nodeRadius + checkXShiftLabel)
     .attr("y", d => d.y + yLabelShift)
+    .attr("id", d => d.id)
     .attr("width", 100)
     .attr("height", 30)
     .append("xhtml:div")
@@ -437,7 +438,7 @@ function dragged(event, d) {
     labels.filter(l => l.id === d.id)
         .attr("x", d.type === "x" ? d.x - nodeRadius - bitXShiftLabel : d.x + nodeRadius + checkXShiftLabel)
         .attr("y", d.y + yLabelShift)
-        .text(d.label);
+        .attr("html", d.html);
 
     updateLinks();
 }
@@ -1011,14 +1012,14 @@ form.innerHTML = '';
 const options = [
     {
         codeword: correctResult.decodedWord.join(''),
-        status: correctResult.fullyDecoded ? "fully decoded" : "partially decoded",
+        status: correctResult.fullyDecoded ? "Fully Decoded" : "Partially Decoded",
         correct: true
     },
     ...Array(3).fill(null).map(() => {
         const generatedOption = generateIncorrectOption(7).codeword.join('');
         return {
             codeword: generatedOption,
-            status: generatedOption.includes('?') ? "partially decoded" : "fully decoded",
+            status: generatedOption.includes('?') ? "Partially decoded" : "Fully Decoded",
             correct: false
         };
     })
@@ -1027,7 +1028,7 @@ const options = [
 const formattedOptions = options.map((option, index) => ({
     id: `option-${index}`,
     messages: [{
-        message: `${option.codeword}, ${option.status}`
+        message: `\\((${option.codeword})\\), ${option.status}`
     }],
     label: 'Decoded codeword:',
     correct: option.correct
