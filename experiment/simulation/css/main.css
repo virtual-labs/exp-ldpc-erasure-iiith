@@ -177,3 +177,14 @@ select {
         height: 600px; 
     }
 }
+
+.taskbar-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    flex: 1;
+    /* Allow tabs to grow and shrink based on container size */
+    width: 100%;
+    /* Ensure full width of the container */
+}
+
