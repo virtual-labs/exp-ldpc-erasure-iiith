@@ -597,6 +597,8 @@ function generateMessageOptions(correctMessages) {
     shuffledOptions.forEach((option, index) => {
         const div = document.createElement('div');
         div.className = 'option';
+        div.style.paddingTop = '0.4em'
+
 
         const radio = document.createElement('input');
         radio.type = 'radio';
@@ -611,11 +613,11 @@ function generateMessageOptions(correctMessages) {
         const labelSpan = document.createElement('span');
         labelSpan.textContent = option.label;
         // labelSpan.style.display = 'block';
-        labelSpan.style.marginBottom = '8px';  // Adjust this value to control spacing
-
+        // labelSpan.style.marginBottom = '12px';  // Adjust this value to control spacing
+        
         const messagesSpan = document.createElement('span');
         messagesSpan.style.display = 'block'
-        messagesSpan.style.paddingTop = '0.4em'
+        // messagesSpan.style.paddingTop = '0.4em'
         messagesSpan.innerHTML = option.messages.map(msg => msg.message || msg).join(', ');
 
         label.appendChild(labelSpan);
