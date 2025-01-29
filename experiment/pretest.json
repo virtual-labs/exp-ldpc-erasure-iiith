@@ -2,37 +2,88 @@
   "version": 2.0,
   "questions": [
     {
-      "question": "This is a Sample Question 1?",
+      "question": "[ENTIRE THING NEEDS REVISION] Consider a Gaussian distribution given by its pdf $f(x) = \\frac{1}{5\\sqrt{2\\pi}}e^{-\\frac{(x-\\pi)^2}{50}}$. Choose the correct options for the mean and variance, respectively, for the given distribution.",
       "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
+        "a": "$5, \\pi$",
+        "b": "$\\pi, 5$",
+        "c": "$25, \\pi$",
+        "d": "$\\pi, 25$"
       },
       "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
+        "a": "Incorrect option. The Gaussian distribution with mean $\\mu$ and variance $\\sigma$ can be estimated by modeling the given distribution using the formula $f(x) = \\frac{1}{\\sqrt{2\\pi \\sigma}}e^{-\\frac{(x - \\mu)^2}{2 \\sigma}}$.",
+        "b": "Incorrect option. The Gaussian distribution with mean $\\mu$ and variance $\\sigma$ can be estimated by modeling the given distribution using the formula $f(x) = \\frac{1}{\\sqrt{2\\pi \\sigma}}e^{-\\frac{(x - \\mu)^2}{2 \\sigma}}$.",
+        "c": "Incorrect option. The Gaussian distribution with mean $\\mu$ and variance $\\sigma$ can be estimated by modeling the given distribution using the formula $f(x) = \\frac{1}{\\sqrt{2\\pi \\sigma}}e^{-\\frac{(x - \\mu)^2}{2 \\sigma}}$.",
+        "d": "Correct option."
+      },
+      "correctAnswer": "d",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Suppose $A = \\{1, \\pi, 3, 2.8, -5, 25\\}$. Find $\\hat{x} = arg \\max_{x \\in A} x^2$.",
+      "answers": {
+        "a": "$\\pi$",
+        "b": "$25$",
+        "c": "$2.8$",
+        "d": "$-5$"
+      },
+      "explanations": {
+        "a": "This option is incorrect. It should be noted that $\\pi^2$ is less than the square of some other elements, i.e. $\\{-5, 25\\}$ in the set. Which, clearly indicates that $\\hat{x} \\neq \\pi$.",
+        "b": "$25^2$ is the largest value among all squares of the elements in $A$. Hence, this is the correct option.",
+        "c": "This option is incorrect. It should be noted that $2.8^2$ is less than the square of some other elements, i.e. $\\{\\pi, -5, 25\\}$ in the set. Which, clearly indicates that $\\hat{x} \\neq 2.8$.",
+        "d": "This option is incorrect It should be noted that $(-5)^2$ is less than the square of some other element, i.e. $\\{25\\}$ in the set. Which, clearly indicates that $\\hat{x} \\neq -5$."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Choose the correct option for given two statements. $ \\\\ \\text{1. BEC can flip bit value. }\\\\ \\text{2. BSC can erase bit value.}$",
+      "answers": {
+        "a": "Both $1$ and $2$ are wrong.",
+        "b": "$1$ is correct, $2$ is wrong.",
+        "c": "$1$ is wrong, $2$ is correct.",
+        "d": "Both $1$ and $2$ are correct."
+      },
+      "explanations": {
+        "a": "This option is true. With respect to statement $1$ observe that the Binary Erasure Channel (BEC) erases the transmitted symbol with some probability but cannot flip the bit value. Whereas, with respect to statement $2$ observe that the Binary Symmetry Channel (BSC) flips the transmitted symbols with some probability but cannot erase the bit value.",
+        "b": "This option is false due to first statement. With respect to statement $1$ observe that the Binary Erasure Channel (BEC) erases the transmitted symbol with some probability but cannot flip the bit value.",
+        "c": "This option is false due to second statement. With respect to statement $2$ observe that the Binary Symmetry Channel (BSC) flips the transmitted symbols with some probability but cannot erase the bit value.",
+        "d": "This option is flase because both statements are false. With respect to statement $1$ observe that the Binary Erasure Channel (BEC) erases the transmitted symbol with some probability but cannot flip the bit value. Whereas, with respect to statement $2$ observe that the Binary Symmetry Channel (BSC) flips the transmitted symbols with some probability but cannot erase the bit value."
       },
       "correctAnswer": "a",
       "difficulty": "beginner"
     },
     {
-      "question": "This is a Sample Question 2?",
+      "question": "Let $\\mathcal{C} =$ $\\{(0,0,0,\\cdots,0),$ $(1,1,1,\\cdots,1)\\}$ be a $n$-length code. Suppose a codeword from $\\mathcal{C}$ is transmitted over a $BEC(\\epsilon)$. Find the maximum number of erasures that allows unambiguous recovery of the transmitted codeword.",
       "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
+        "a": "$\\frac{n}{2}$",
+        "b": "$\\frac{n-1}{2}$",
+        "c": "$n-1$",
+        "d": "$1$"
       },
       "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
+        "a": "Incorrect option. In this case any codeword from $\\mathcal{C}$ transmitted over a Binary Erasure Channel ($BEC(\\epsilon)$), the original message can still be recovered even if all symbols, except one, are erased. Note that the $BEC(\\epsilon)$ erases the transmitted bit, while the $BSC(p)$ flips it.",
+        "b": "Incorrect option. In this case any codeword from $\\mathcal{C}$ transmitted over a Binary Erasure Channel ($BEC(\\epsilon)$), the original message can still be recovered even if all symbols, except one, are erased. Note that the $BEC(\\epsilon)$ erases the transmitted bit, while the $BSC(p)$ flips it.",
+        "c": "Correct option. In this case any codeword from $\\mathcal{C}$ transmitted over a Binary Erasure Channel ($BEC(\\epsilon)$), the original message can still be recovered even if all symbols, except one, are erased. Note that the $BEC(\\epsilon)$ erases the transmitted bit, while the $BSC(p)$ flips it.",
+        "d": "Incorrect option. In this case any codeword from $\\mathcal{C}$ transmitted over a Binary Erasure Channel ($BEC(\\epsilon)$), the original message can still be recovered even if all symbols, except one, are erased. Note that the $BEC(\\epsilon)$ erases the transmitted bit, while the $BSC(p)$ flips it."
       },
       "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Suppose $\\textbf{x} $ $= (1,0,1,1)$ is being transmitted over Binary Symmetric Channel. Choose the valid received vector.",
+      "answers": {
+        "a": "$(0,1,1,1)$",
+        "b": "$(0,1,1)$",
+        "c": "$(1,?,1,1)$",
+        "d": "$(1,0,?,1)$"
+      },
+      "explanations": {
+        "a": "Correct option. The received codeword may consist of any $4$-length binary tuple.",
+        "b": "Incorrect option. The Binary Symmetric Channel cannot reduce the $4$-length tuple into a tuple of lower length.",
+        "c": "Incorrect option. The Binary Symmetric Channel cannot erase any symbols of a codeword.",
+        "d": "Incorrect option. The Binary Symmetric Channel cannot erase any symbols of a codeword."
+      },
+      "correctAnswer": "a",
       "difficulty": "beginner"
     }
   ]
