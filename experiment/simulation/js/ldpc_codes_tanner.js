@@ -333,9 +333,22 @@ let checkNodes = H.map((_, i) => ({
     x: checkNodeStartX,
     y: i * checkNodeSpacingY + verticalOffset,
     peeled: false,
-    value: '0', // Initially all check nodes have unknown values
+    value: '0',
     label: `z${i}: ?` // Combined ID and value label
 }));
+
+checkNodes.forEach((checkNode, i) => {
+    let sum = 0;
+
+    H[i].forEach((val, j) => {
+        if (val === 1 && !bitNodes[j].peeled) { 
+            sum ^= bitNodes[j].value; // XOR sum for parity
+        }
+    });
+
+    checkNode.value = sum;
+    checkNode.label = `z${i}: ${sum}`; // Update label
+});
 
 let nodes = [...bitNodes, ...checkNodes];
 
@@ -535,58 +548,38 @@ function insertUnderscore(str) {
     return str[0] + '_' + str.slice(1);
 }
 
-// Function to get initial messages for the first round
-function getInitialMessages() {
-    let messages = [];
-    bitNodes.forEach(node => {
-        if (node.value === '?') {
-            // Find connected check nodes
-            const connections = links.filter(link => link.source === node.id);
-            connections.forEach(conn => {
-                messages.push({
-                    from: node.id,
-                    to: conn.target,
-                    message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(conn.target)}}\\)` 
-                });
-            });
-        }
-    });
-    return messages;
-}
-
 
 // Initialize the graph with first round options
-generateMessageOptions(getInitialMessages());
 
 function updateGraphForRound(peeledNodes) {
     // Update visual representation for all peeled nodes
     peeledNodes.forEach(node => {
         const nodeElement = svg.select(`[id='${node.id}']`);
         nodeElement
-            .transition()
-            .duration(500)
-            .attr("fill", "#ff6b6b")
-            .attr("opacity", 0.6);
-
+        .transition()
+        .duration(500)
+        .attr("fill", "#ff6b6b")
+        .attr("opacity", 0.6);
+        
         // Update all connected links
         const affectedLinks = links.filter(link =>
             link.source === node.id || link.target === node.id
         );
-
+        
         affectedLinks.forEach(link => {
             svg.selectAll("line")
-                .filter(l => l.source === link.source && l.target === link.target)
-                .transition()
-                .duration(500)
-                .attr("stroke", "#ddd")
-                .attr("opacity", 0.3);
+            .filter(l => l.source === link.source && l.target === link.target)
+            .transition()
+            .duration(500)
+            .attr("stroke", "#ddd")
+            .attr("opacity", 0.3);
         });
-
+        
         // Update labels
         svg.select(`text#label-${node.id}`)
-            .text(`${node.id} (Peeled)`);
+        .text(`${node.id} (Peeled)`);
     });
-
+    
     // Update links data structure
     links = links.filter(link =>
         !peeledNodes.some(node =>
@@ -596,90 +589,70 @@ function updateGraphForRound(peeledNodes) {
 }
 
 // Function to get valid messages for current round
-function getCurrentRoundMessages() {
+function getInitialMessages() {
     let messages = [];
     
-    if (currentDirection === 'left-to-right') {
-        // Get messages from erasure bit nodes to check nodes
-        bitNodes.forEach(node => {
-            if (node.peeled) return;
-            if (node.value === '?') {
-                // Count unpeeled connections
-                const connections = links.filter(link =>
-                    link.source === node.id &&
-                    !checkNodes.find(n => n.id === link.target).peeled
-                );
-                
-                if (connections.length === 1) {
-                    const checkNodeId = connections[0].target;
-                    messages.push({
-                        from: node.id,
-                        to: checkNodeId,
-                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}}\\)`
-                    });
-                }
-            }
-        });
-    } else {
-        // Get messages from check nodes to bit nodes
-        checkNodes.forEach(node => {
-            if (node.peeled) return;
-            
-            // Count unpeeled connections
-            const connections = links.filter(link =>
-                link.target === node.id &&
-                !bitNodes.find(n => n.id === link.source).peeled
-            );
-            
-            if (connections.length === 1) {
-                const bitNodeId = connections[0].source;
-                messages.push({
-                    from: node.id,
-                    to: bitNodeId,
-                    message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}}\\)`
-                });
-            }
-        });
-    }
+    // Find check nodes with exactly one erased bit node connection
+    let foundMessage = false;
     
-    return messages;
+    checkNodes.forEach(checkNode => {
+        if (checkNode.peeled) return;
+        
+        // Find connected bit nodes
+        let connectedBitNodes = links
+        .filter(link => link.target === checkNode.id)
+        .map(link => bitNodes.find(n => n.id === link.source));
+        
+        // Filter out peeled bit nodes
+        let unpeeledBitNodes = connectedBitNodes.filter(node => !node.peeled);
+        
+        // Find erased bit nodes (value === '?')
+        let erasedBitNodes = unpeeledBitNodes.filter(node => node.value === '?');
+        
+        if (erasedBitNodes.length === 1) {
+            foundMessage = true;
+            let erasedNode = erasedBitNodes[0];
+            
+            // Compute message: sum of all other connected bit nodes modulo 2
+            let sum = 0;
+            unpeeledBitNodes.forEach(node => {
+                if (node.value !== '?' && node !== erasedNode) {
+                    sum ^= node.value;
+                }
+            });
+            
+            messages.push({
+                from: checkNode.id,
+                to: erasedNode.id,
+                message: `\\(\\mu_{${insertUnderscore(checkNode.id)}\\to ${insertUnderscore(erasedNode.id)}} = ${sum}\\)`
+            });
+        }
+    });
+    
+    return foundMessage ? messages : null;
 }
 
+generateMessageOptions(getInitialMessages());
 function generateMessageOptions(correctMessages) {
     // Get the form element
     const form = document.getElementById('form1');
     form.innerHTML = '';
 
-    // Create 4 options, only one with all correct messages
     const options = [];
+    const noValidMessages = correctMessages === null;
 
-    // Option 1: All correct messages (the right answer)
-    options.push({
-        id: 'correct',
-        messages: correctMessages,
-        label: 'Messages passing in this round:'
-    });
+    // Option 1: Correct messages
+    if (!noValidMessages) {
+        options.push({
+            id: 'correct',
+            messages: [{ message: `${correctMessages} = 1` }],
+            label: 'Messages passing in this round:'
+        });
+    }
 
-    // Option 2: Messages that would be valid in the wrong direction
+    // Option 2: Wrong direction messages
     const wrongDirectionMessages = [];
     if (currentDirection === 'left-to-right') {
-        checkNodes.forEach(node => {
-            if (!node.peeled) {
-                const connections = links.filter(link =>
-                    link.target === node.id &&
-                    !bitNodes.find(n => n.id === link.source).peeled
-                );
-                if (connections.length === 1) {
-                    const bitNodeId = connections[0].source;
-                    wrongDirectionMessages.push({
-                        from: node.id,
-                        to: bitNodeId,
-                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}}\\)`
-                    });
-                }
-            }
-        });
-    } else {
         bitNodes.forEach(node => {
             if (!node.peeled && node.value === '?') {
                 const connections = links.filter(link =>
@@ -691,7 +664,7 @@ function generateMessageOptions(correctMessages) {
                     wrongDirectionMessages.push({
                         from: node.id,
                         to: checkNodeId,
-                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}}\\)`
+                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}} = ${Math.random() < 0.5 ? 0 : 1}\\)`
                     });
                 }
             }
@@ -704,63 +677,53 @@ function generateMessageOptions(correctMessages) {
         label: 'Messages passing in this round:'
     });
 
-    // Option 3: Messages from nodes with degree > 1
-    const invalidDegreeMessages = [];
-    if (currentDirection === 'left-to-right') {
-        bitNodes.forEach(node => {
-            if (!node.peeled && node.value === '?') {
-                const connections = links.filter(link =>
-                    link.source === node.id &&
-                    !checkNodes.find(n => n.id === link.target).peeled
-                );
-                if (connections.length > 1) {
-                    const checkNodeId = connections[0].target;
-                    invalidDegreeMessages.push({
-                        from: node.id,
-                        to: checkNodeId,
-                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}}\\)`
-                    });
-                }
+    // Option 3: Invalid degree messages
+    let invalidDegreeMessages = [];
+    checkNodes.forEach(node => {
+        if (!node.peeled) {
+            const connections = links.filter(link =>
+                link.target === node.id &&
+                !bitNodes.find(n => n.id === link.source).peeled
+            );
+            if (connections.length > 1) {
+                const bitNodeId = connections[0].source;
+                invalidDegreeMessages.push({
+                    from: node.id,
+                    to: bitNodeId,
+                    message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}} = ${Math.random() < 0.5 ? 0 : 1}\\)`
+                });
             }
-        });
-    } else {
-        checkNodes.forEach(node => {
-            if (!node.peeled) {
-                const connections = links.filter(link =>
-                    link.target === node.id &&
-                    !bitNodes.find(n => n.id === link.source).peeled
-                );
-                if (connections.length > 1) {
-                    const bitNodeId = connections[0].source;
-                    invalidDegreeMessages.push({
-                        from: node.id,
-                        to: bitNodeId,
-                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}}\\)`
-                    });
-                }
-            }
-        });
+        }
+    });
+
+    if (invalidDegreeMessages.length === 0) {
+        invalidDegreeMessages = generateInvalidMessages(2);
     }
-    ensureNonEmpty(invalidDegreeMessages);
     options.push({
         id: 'invalid-degree',
-        messages: invalidDegreeMessages.slice(0, correctMessages.length),
+        messages: invalidDegreeMessages,
         label: 'Messages passing in this round:'
     });
 
-    // Option 4: Messages between unconnected nodes
-    const invalidMessages = generateInvalidMessages(correctMessages.length);
-    ensureNonEmpty(invalidMessages);
-    options.push({
-        id: 'invalid',
-        messages: invalidMessages,
-        label: 'Messages passing in this round:'
-    });
+    // Option 4: Process over or unconnected node messages
+    if (noValidMessages) {
+        const invalidMessages = generateInvalidMessages(2);
+        ensureNonEmpty(invalidMessages);
+        options.push({
+            id: 'invalid',
+            messages: invalidMessages,
+            label: 'Messages passing in this round:'
+        });
+    } else {
+        options.push({
+            id: 'process-over',
+            messages: [{ message: "No message will be sent. The process is over." }],
+            label: 'Messages passing in this round:'
+        });
+    }
 
-    // Shuffle options
+    // Shuffle and display options
     const shuffledOptions = shuffleArray(options);
-
-    // Add options to form
     shuffledOptions.forEach((option, index) => {
         const div = document.createElement('div');
         div.className = 'option';
@@ -774,7 +737,7 @@ function generateMessageOptions(correctMessages) {
         const label = document.createElement('label');
         label.htmlFor = option.id;
         label.innerHTML = `${option.label}<br>` +
-            option.messages.map(msg => msg.message).join(', ');
+            option.messages.map(msg => msg.message || msg).join(', '); // Fix for [Object][Object] issue
 
         div.appendChild(radio);
         div.appendChild(label);
@@ -782,18 +745,46 @@ function generateMessageOptions(correctMessages) {
     });
 }
 
+// Function to generate invalid messages between unconnected nodes
+function generateInvalidMessages(count) {
+    const invalidMessages = [];
+    const bitNodesUnconnected = bitNodes.filter(bitNode => 
+        !links.some(link => link.source === bitNode.id || link.target === bitNode.id)
+    );
+    const checkNodesUnconnected = checkNodes.filter(checkNode => 
+        !links.some(link => link.source === checkNode.id || link.target === checkNode.id)
+    );
+
+    while (invalidMessages.length < count) {
+        let bitNode, checkNode;
+        
+        if (bitNodesUnconnected.length > 0 && checkNodesUnconnected.length > 0) {
+            bitNode = bitNodesUnconnected[Math.floor(Math.random() * bitNodesUnconnected.length)];
+            checkNode = checkNodesUnconnected[Math.floor(Math.random() * checkNodesUnconnected.length)];
+        } else {
+            // Fallback: Pick any two random nodes (not necessarily unconnected)
+            bitNode = bitNodes[Math.floor(Math.random() * bitNodes.length)];
+            checkNode = checkNodes[Math.floor(Math.random() * checkNodes.length)];
+        }
+
+        invalidMessages.push({
+            from: bitNode.id,
+            to: checkNode.id,
+            message: `\\(\\mu_{${insertUnderscore(bitNode.id)}\\to ${insertUnderscore(checkNode.id)}} = ${Math.random() < 0.5 ? 0 : 1}\\)`
+        });
+
+        // Remove selected nodes to avoid duplicates
+        bitNodesUnconnected.splice(bitNodesUnconnected.indexOf(bitNode), 1);
+        checkNodesUnconnected.splice(checkNodesUnconnected.indexOf(checkNode), 1);
+    }
+
+    return invalidMessages;
+}
+
+// Function to ensure message array is not empty
 function ensureNonEmpty(messages) {
     if (messages.length === 0) {
-        // Generate a random check node ID and bit node ID
-        const randomCheckNode = `x${Math.floor(Math.random() * checkNodes.length)}`;
-        const randomBitNode = `z${Math.floor(Math.random() * bitNodes.length)}`;
-
-        // Add a placeholder message
-        messages.push({
-            from: randomCheckNode,
-            to: randomBitNode,
-            message: `\\(\\mu_{${insertUnderscore(randomCheckNode)}\\to ${insertUnderscore(randomBitNode)}}\\)`
-        });
+        messages.push(generateInvalidMessages(1)[0]);
     }
 }
 
@@ -869,26 +860,6 @@ function NextRound() {
     
     // Reset the form selection
     form.reset();
-}
-
-function generateInvalidMessages(count) {
-    const messages = [];
-    for (let i = 0; i < count; i++) {
-        const randomBit = Math.floor(Math.random() * bitNodes.length);
-        const randomCheck = Math.floor(Math.random() * checkNodes.length);
-        // Ensure this is not an actual connection
-        if (!links.some(link =>
-            link.source === `x${randomBit}` &&
-            link.target === `z${randomCheck}`
-        )) {
-            messages.push({
-                from: `x${randomBit}`,
-                to: `z${randomCheck}`,
-                message: `\\(\\mu_{x_${randomBit}\\to z_${randomCheck}}\\)`
-            });
-        }
-    }
-    return messages;
 }
 
 function shuffleArray(array) {
