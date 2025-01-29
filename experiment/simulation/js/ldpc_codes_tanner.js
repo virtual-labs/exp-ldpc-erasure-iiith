@@ -687,12 +687,16 @@ function NextRound() {
     console.log(selectedOption);
     // Check if the selected option is correct
     if (selectedOption.id === 'correct') {
-        observation.innerHTML = "Correct!";
+        observation.innerHTML = "Correct! Now, let's attempt a full decoding.";
         observation.style.color = "green";
-    } else {
-        observation.innerHTML = "Incorrect. Please try again.";
+    } else if(observation.innerHTML === "Incorrect! Consider what are the \"meaningful\" messages that can be passed in this round."){
+        observation.innerHTML = "Still incorrect! Please review the theory once again.";
+        observation.style.color = "red";
+    } else{
+        observation.innerHTML = "Incorrect! Consider what are the \"meaningful\" messages that can be passed in this round.";
         observation.style.color = "red";
     }
+    
 }
 
 function shuffleArray(array) {
