@@ -811,17 +811,17 @@ function NextRound() {
 
     // Check if the selected option is correct
     if (selectedOption.id !== 'correct') {
-        if (observation.innerHTML === "Incorrect. Please try again.") {
-            observation.innerHTML = "Still incorrect. Please review your choice carefully.";
+        if (observation.innerHTML === "Incorrect. Try to see which variable nodes have \"meaningful\" messages to pass.") {
+            observation.innerHTML = "Still incorrect. Please review the theory once again.";
         } else {
-            observation.innerHTML = "Incorrect. Please try again.";
+            observation.innerHTML = "Incorrect. Try to see which variable nodes have \"meaningful\" messages to pass.";
         }
         observation.style.color = "red";
         return;
     }
 
     // Correct option selected - proceed with the round
-    observation.innerHTML = "Correct! Processing next round...";
+    observation.innerHTML = "Correct!";
     observation.style.color = "green";
 
     // Peel the nodes and update the graph
@@ -854,7 +854,7 @@ function NextRound() {
     if (nextMessages.length > 0) {
         generateMessageOptions(nextMessages);
     } else {
-        observation.innerHTML = "Decoding complete! No more nodes to peel.";
+        observation.innerHTML = "Correct! Now, let's attempt a full decoding!";
         observation.style.color = "green";
     }
     
