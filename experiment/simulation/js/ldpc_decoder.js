@@ -1084,18 +1084,24 @@ function NextRound() {
         return;
     }
 
+    console.log(selectedOption);
     // Check if the selected option is correct
     if (selectedOption.correct !== true) {
-        if (observation.innerHTML != "Correct!") {
-            observation.innerHTML = "Still incorrect. Please review your choice carefully.";
+        if(correctResult.fullyDecoded === false && selectedOption.status === 1){
+            console.log("HERE");
+            observation.innerHTML = "Is this the only possible codeword that could have been sent?";
+            return;
+        }
+        if (observation.innerHTML == "Incorrect. Please try again. An easy way to verify your answer is that the decoded vector and the received vector should be identical in all the unerased positions.") {
+            observation.innerHTML = "Still incorrect. Please review the theory once again.";
         } else {
-            observation.innerHTML = "Incorrect. Please try again.";
+            observation.innerHTML = "Incorrect. Please try again. An easy way to verify your answer is that the decoded vector and the received vector should be identical in all the unerased positions.";
         }
         observation.style.color = "red";
         return;
     }
 
     // Correct option selected - proceed with the round
-    observation.innerHTML = "Correct!";
+    observation.innerHTML = "Correct! We can move on to more complicated channel models now.";
     observation.style.color = "green";
 }
