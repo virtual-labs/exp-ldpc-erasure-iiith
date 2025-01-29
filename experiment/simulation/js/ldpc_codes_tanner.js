@@ -194,8 +194,8 @@ let links = [];
 H.forEach((row, i) => {
     row.forEach((val, j) => {
         if (val === 1) {
-            links.push({ 
-                source: "x" + j, 
+            links.push({
+                source: "x" + j,
                 target: "z" + i,
                 isDotted: bitNodes[j].value !== '?' // Add property to track if link should be dotted
             });
@@ -231,7 +231,7 @@ function updateLinkStyles() {
         const sourceNode = bitNodes.find(n => n.id === link.source);
         link.isDotted = sourceNode.value !== '?';
     });
-    
+
     link.style("stroke-dasharray", d => d.isDotted ? "5,5" : "none");
 }
 
@@ -274,43 +274,46 @@ let labels = svg.append("g")
         if (d.type === "x") {
             return `\\(x_{${d.id.slice(1)}}: ${d.value}\\)`;
         }
-        if(d.type === "z"){
+        if (d.type === "z") {
             return `\\(z_{${d.id.slice(1)}}: ${d.value}\\)`;
         }
         return d.label;
     });
-    checkNodes.forEach((checkNode, i) => {
-        let knownValues = [];
-        H[i].forEach((val, j) => {
-            if (val === 1 && !bitNodes[j].peeled && bitNodes[j].value !== '?') {
-                knownValues.push(bitNodes[j].value);
-            }
-        });
-        
-        if (knownValues.length > 0) {
-            let sum = knownValues.reduce((a, b) => a ^ b, 0);
-            checkNode.value = sum;
-            checkNode.label = `z${i}: ${sum}`;
-        } else {
-            checkNode.value = '?';
-            checkNode.label = `z${i}: ?`;
-        }
-        
-        // Update the label in the DOM
-        const labelElement = svg.select(`foreignObject#${checkNode.id}`)
-            .select("div");
-        
-        if (labelElement.node()) {
-            labelElement.html(() => {
-                return `\\(z_{${checkNode.id.slice(1)}}: ${checkNode.value}\\)`;
-            });
-            
-            // If you're using MathJax, retypeset
-            if (typeof MathJax !== 'undefined') {
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-            }
+checkNodes.forEach((checkNode, i) => {
+    let knownValues = [];
+    H[i].forEach((val, j) => {
+        if (val === 1 && !bitNodes[j].peeled && bitNodes[j].value !== '?') {
+            knownValues.push(bitNodes[j].value);
         }
     });
+
+    if (knownValues.length > 0) {
+        let sum = knownValues.reduce((a, b) => a ^ b, 0);
+        checkNode.value = sum;
+        checkNode.label = `z${i}: ${sum}`;
+    } else {
+        checkNode.value = '?';
+        checkNode.label = `z${i}: ?`;
+    }
+
+    // Update the label in the DOM
+    const labelElement = svg.select(`foreignObject#${checkNode.id}`)
+        .select("div");
+
+    if (labelElement.node()) {
+        labelElement.html(() => {
+            return `\\(z_{${checkNode.id.slice(1)}}: ${checkNode.value}\\)`;
+        });
+
+
+        // Ensure MathJax processes the new content after the DOM update
+        if (typeof MathJax !== 'undefined') {
+            MathJax.typesetPromise([labelElement.node()])
+                .catch(err => console.error('MathJax rendering error:', err));
+        }
+
+    }
+});
 // Trigger MathJax rendering
 // MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
@@ -407,30 +410,30 @@ function updateGraphForRound(peeledNodes) {
     peeledNodes.forEach(node => {
         const nodeElement = svg.select(`[id='${node.id}']`);
         nodeElement
-        .transition()
-        .duration(500)
-        .attr("fill", "#ff6b6b")
-        .attr("opacity", 0.6);
-        
+            .transition()
+            .duration(500)
+            .attr("fill", "#ff6b6b")
+            .attr("opacity", 0.6);
+
         // Update all connected links
         const affectedLinks = links.filter(link =>
             link.source === node.id || link.target === node.id
         );
-        
+
         affectedLinks.forEach(link => {
             svg.selectAll("line")
-            .filter(l => l.source === link.source && l.target === link.target)
-            .transition()
-            .duration(500)
-            .attr("stroke", "#ddd")
-            .attr("opacity", 0.3);
+                .filter(l => l.source === link.source && l.target === link.target)
+                .transition()
+                .duration(500)
+                .attr("stroke", "#ddd")
+                .attr("opacity", 0.3);
         });
-        
+
         // Update labels
         svg.select(`text#label-${node.id}`)
-        .text(`${node.id} (Peeled)`);
+            .text(`${node.id} (Peeled)`);
     });
-    
+
     // Update links data structure
     links = links.filter(link =>
         !peeledNodes.some(node =>
@@ -442,21 +445,21 @@ function updateGraphForRound(peeledNodes) {
 // Function to get valid messages for current round
 function getInitialMessages() {
     let messages = [];
-    
+
     // Find check nodes with exactly one erased bit node connection
     let foundMessage = false;
-    
+
     checkNodes.forEach(checkNode => {
         if (checkNode.peeled) return;
-        
+
         // Find connected bit nodes
         let connectedBitNodes = links
-        .filter(link => link.target === checkNode.id)
-        .map(link => bitNodes.find(n => n.id === link.source));
-        
+            .filter(link => link.target === checkNode.id)
+            .map(link => bitNodes.find(n => n.id === link.source));
+
         // Filter out peeled bit nodes
         let unpeeledBitNodes = connectedBitNodes.filter(node => !node.peeled);
-        
+
         // Find erased bit nodes (value === '?')
         let erasedBitNodes = unpeeledBitNodes.filter(node => node.value === '?');
         console.log(erasedBitNodes)
@@ -464,7 +467,7 @@ function getInitialMessages() {
         if (erasedBitNodes.length === 1) {
             foundMessage = true;
             let erasedNode = erasedBitNodes[0];
-            
+
             // Compute message: sum of all other connected bit nodes modulo 2
             let sum = 0;
             unpeeledBitNodes.forEach(node => {
@@ -474,7 +477,7 @@ function getInitialMessages() {
             });
 
             console.log(erasedNode.id)
-            
+
             messages.push({
                 from: checkNode.id,
                 to: erasedNode.id,
@@ -482,7 +485,7 @@ function getInitialMessages() {
             });
         }
     });
-    
+
     if (foundMessage) {
         return {
             found: true,
@@ -502,7 +505,7 @@ function generateMessageOptions(correctMessages) {
     form.innerHTML = '';
 
     const options = [];
-    
+
     console.log(correctMessages)
 
     // Option 1: Correct messages
@@ -614,7 +617,7 @@ function generateMessageOptions(correctMessages) {
         labelSpan.textContent = option.label;
         // labelSpan.style.display = 'block';
         // labelSpan.style.marginBottom = '12px';  // Adjust this value to control spacing
-        
+
         const messagesSpan = document.createElement('span');
         messagesSpan.style.display = 'block'
         // messagesSpan.style.paddingTop = '0.4em'
@@ -632,16 +635,16 @@ function generateMessageOptions(correctMessages) {
 // Function to generate invalid messages between unconnected nodes
 function generateInvalidMessages(count) {
     const invalidMessages = [];
-    const bitNodesUnconnected = bitNodes.filter(bitNode => 
+    const bitNodesUnconnected = bitNodes.filter(bitNode =>
         !links.some(link => link.source === bitNode.id || link.target === bitNode.id)
     );
-    const checkNodesUnconnected = checkNodes.filter(checkNode => 
+    const checkNodesUnconnected = checkNodes.filter(checkNode =>
         !links.some(link => link.source === checkNode.id || link.target === checkNode.id)
     );
 
     while (invalidMessages.length < count) {
         let bitNode, checkNode;
-        
+
         if (bitNodesUnconnected.length > 0 && checkNodesUnconnected.length > 0) {
             bitNode = bitNodesUnconnected[Math.floor(Math.random() * bitNodesUnconnected.length)];
             checkNode = checkNodesUnconnected[Math.floor(Math.random() * checkNodesUnconnected.length)];
@@ -689,14 +692,14 @@ function NextRound() {
     if (selectedOption.id === 'correct') {
         observation.innerHTML = "Correct! Now, let's attempt a full decoding.";
         observation.style.color = "green";
-    } else if(observation.innerHTML === "Incorrect! Consider what are the \"meaningful\" messages that can be passed in this round."){
+    } else if (observation.innerHTML === "Incorrect! Consider what are the \"meaningful\" messages that can be passed in this round.") {
         observation.innerHTML = "Still incorrect! Please review the theory once again.";
         observation.style.color = "red";
-    } else{
+    } else {
         observation.innerHTML = "Incorrect! Consider what are the \"meaningful\" messages that can be passed in this round.";
         observation.style.color = "red";
     }
-    
+
 }
 
 function shuffleArray(array) {
