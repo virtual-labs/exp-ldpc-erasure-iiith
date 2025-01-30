@@ -5,15 +5,15 @@
       "question": "Consider the code $\\mathcal{C} = \\{\\boldsymbol{x_1}=(0,0,0,0,0), \\boldsymbol{x_2}=(1,0,1,0,1), \\boldsymbol{x_3}=(0,1,0,1,1), \\boldsymbol{x_4}=(1,1,1,1,0) \\}$. Suppose a codeword from $\\mathcal{C}$ is transmitted over a $BEC(\\epsilon)$. Choose the option corresponding to the output of the ML decoder if the received vector is $\\boldsymbol{y}=(1,?,1,?,0)$.",
       "answers": {
         "a": "$(0,0,0,0,0)$",
-        "b": "$(1,0,1,0,1)$",
+        "b": "$(1,1,1,1,0)$",
         "c": "$(0,1,0,1,1)$",
-        "d": "$(1,1,1,1,0)$"
+        "d": "$(1,0,1,0,1)$"
       },
       "explanations": {
         "a": "Incorrect option. The received vector $\\boldsymbol{y}$ is inconsistent with $(0,0,0,0,0)$.",
         "b": "Correct option. The received vector $\\boldsymbol{y} = (1,?,1,?,0)$ maximizes $p(\\boldsymbol{y} \\mid \\boldsymbol{x})$. Since $p(\\boldsymbol{y} \\mid \\boldsymbol{x_2}) = \\epsilon^2 (1-\\epsilon)^3$ and $p(\\boldsymbol{y} \\mid \\boldsymbol{x_2}) > p(\\boldsymbol{y} \\mid \\boldsymbol{x_i}) = 0$ for $i = 1,3,4$, we conclude that $\\boldsymbol{x_2}$ is the ML estimate.",
         "c": "Incorrect option. The received vector $\\boldsymbol{y}$ is inconsistent with $(0,1,0,1,1)$.",
-        "d": "Incorrect option. The received vector $\\boldsymbol{y}$ is inconsistent with $(1,1,1,1,0)$."
+        "d": "Incorrect option. The received vector $\\boldsymbol{y}$ is inconsistent with $(1,0,1,0,1)$."
       },
       "correctAnswer": "b",
       "difficulty": "advanced"

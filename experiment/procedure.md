@@ -10,7 +10,7 @@ The experiment consists of two tasks. The user is recommended to go through thes
 
 <div style="text-align: center;">
     <img src="images/mobile.png" alt="alt text" width="500"/>
-    <img src="images/question.png" alt="alt text" width="500"/>
+    <img src="images/options.png" alt="alt text" width="500"/>
     <img src="images/obs.png" alt="alt text" width="500"/>
 </div>
 
@@ -30,29 +30,27 @@ There are two tasks in this experiment.
 
 1. **Select message**: Select the option corresponding to the correct message(s) passed in this round of peeling decoding
 for the given Tanner graph.
-    <div style="text-align: center;"> <img src="images/options.png" alt="alt text"/> </div>
+    <div style="text-align: center;"> <img src="images/options.png" alt="alt text" width="500"/> </div>
 
 2. **Verify the Message**: Verify the correctness of the message(s) passed in this round of peeling decoding. <br>
-    <div style="text-align: center;"> <img src="images/exp1_0_0_yesno.png" alt="alt text" /> </div> <br>
-    - Click on **Submit** to verify the correctness of the message(s) passed in this round of peeling decoding. 
+    - Click on <strong>Submit</strong> to verify the correctness of the message(s) passed in this round of peeling decoding. 
     - The observation box will display the feedback message accordingly. <br>
       <div style="text-align: center;"> 
-      <img src="images/buttons.png" alt="alt text"/> 
-      <img src="images/exp1_0_0_incorrect.png" alt="alt text"/>
-      <img src="images/exp1_0_0_correct.png" alt="alt text"/>
+      <img src="images/task1_incorrect.png" alt="alt text"/>
+      <img src="images/task1_correct.png" alt="alt text"/>
       </div>
 
 3. **Reset**: Click on **Reset** to reset the experiment and start again.
-    <img src="images/exp1_0_0_rate.png" alt="alt text"/><br>
-    - Click on **Reset** to reset the experiment and start again. <br>
+    <div style="text-align: center;">  <img src="images/buttons.png" alt="alt text"/></div><br>
+    - Click on <strong>Reset</strong> to reset the experiment and start again. <br>
       
 
 ### Task 2: Peeling Decoder for LDPC Codes
 
 1. **Select Decoded Codeword**: Select the option corresponding to the correct decoded codeword for the given Tanner graph. <br>
-    <img src="images/exp1_0_1_input.png" alt="alt text"/><br>
+    <div style="text-align: center;"> <img src="images/task2_options.png" alt="alt text"/></div><br>
     - Select the option corresponding to the correct decoded codeword for the given Tanner graph. <br>
 
 2. **Reset**: Click on **Reset** to reset the experiment and start again.
-    <img src="images/exp1_0_0_rate.png" alt="alt text"/><br>
-    - Click on **Reset** to reset the experiment and start again. <br>
+    <div style="text-align: center;"> <img src="images/buttons.png" alt="alt text"/></div><br>
+    - Click on <strong>Reset</strong> to reset the experiment and start again. <br>
