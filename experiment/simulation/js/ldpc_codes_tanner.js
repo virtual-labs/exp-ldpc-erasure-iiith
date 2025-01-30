@@ -4,11 +4,6 @@ const rows = Math.floor(Math.random() * 3) + 3;
 const cols = Math.floor(Math.random() * 3) + rows + 1;
 const rate = Math.random() * 0.5 + 0.25;
 
-// const { setOfH, correctOption } = generateParityCheckMatrixOptions(rows, cols);
-// // const correctOption = Math.floor(Math.random() * setOfH.length);
-// const H = setOfH[correctOption];
-// const G = generateGeneratorMatrix(H);
-
 // Add tracking variables
 let currentRound = 0;
 
@@ -57,154 +52,8 @@ const GH = generateLDPCMatrices();
 const G = GH.generatorMatrix;
 const H = GH.parityCheckMatrix;
 
-console.log("H matrix:", generateLDPCMatrices());
+console.log("H matrix:", H);
 console.log("G matrix:", G);
-
-
-// // Generate a random binary matrix with specified dimensions
-// function generateRandomBinaryMatrix(rows, cols) {
-//     return Array.from({ length: rows }, () =>
-//         Array.from({ length: cols }, () => Math.floor(Math.random() * 2))
-//     );
-// }
-
-// // Make matrix full rank using Gaussian elimination
-// function makeFullRank(matrix) {
-//     const rows = matrix.length;
-//     const cols = matrix[0].length;
-//     let rank = 0;
-//     let tempMatrix = matrix.map(row => [...row]);
-
-//     for (let col = 0; col < cols && rank < rows; col++) {
-//         // Find pivot
-//         let pivotRow = -1;
-//         for (let row = rank; row < rows; row++) {
-//             if (tempMatrix[row][col] === 1) {
-//                 pivotRow = row;
-//                 break;
-//             }
-//         }
-
-//         if (pivotRow === -1) continue;
-
-//         // Swap rows if necessary
-//         if (pivotRow !== rank) {
-//             [tempMatrix[rank], tempMatrix[pivotRow]] = [tempMatrix[pivotRow], tempMatrix[rank]];
-//         }
-
-//         // Eliminate below
-//         for (let row = rank + 1; row < rows; row++) {
-//             if (tempMatrix[row][col] === 1) {
-//                 for (let c = col; c < cols; c++) {
-//                     tempMatrix[row][c] = (tempMatrix[row][c] + tempMatrix[rank][c]) % 2;
-//                 }
-//             }
-//         }
-
-//         rank++;
-//     }
-
-//     return { matrix: tempMatrix, rank };
-// }
-
-// // Generate a systematic generator matrix G
-// function generateSystematicGeneratorMatrix(k, n) {
-//     if (k >= n) throw new Error("k must be less than n for valid LDPC code");
-
-//     // Start with random binary matrix
-//     let G = generateRandomBinaryMatrix(k, n);
-
-//     // Make it full rank
-//     const { matrix, rank } = makeFullRank(G);
-//     if (rank < k) {
-//         // If not full rank, try again
-//         return generateSystematicGeneratorMatrix(k, n);
-//     }
-//     G = matrix;
-
-//     // Convert to systematic form [I|P]
-//     for (let i = 0; i < k; i++) {
-//         // Make diagonal 1
-//         if (G[i][i] === 0) {
-//             for (let j = i + 1; j < k; j++) {
-//                 if (G[j][i] === 1) {
-//                     for (let col = 0; col < n; col++) {
-//                         G[i][col] = (G[i][col] + G[j][col]) % 2;
-//                     }
-//                     break;
-//                 }
-//             }
-//         }
-
-//         // Clear column above and below
-//         for (let j = 0; j < k; j++) {
-//             if (i !== j && G[j][i] === 1) {
-//                 for (let col = 0; col < n; col++) {
-//                     G[j][col] = (G[j][col] + G[i][col]) % 2;
-//                 }
-//             }
-//         }
-//     }
-
-//     return G;
-// }
-
-// // Generate parity check matrix H from generator matrix G
-// function generateParityCheckMatrix(G) {
-//     const k = G.length;
-//     const n = G[0].length;
-//     const r = n - k;  // number of parity check equations
-
-//     // Extract P matrix from G = [I|P]
-//     const P = G.map(row => row.slice(k));
-
-//     // Create H = [-P^T|I]
-//     const H = Array(r).fill().map(() => Array(n).fill(0));
-
-//     // Fill -P^T part (in binary field, -P^T = P^T)
-//     for (let i = 0; i < r; i++) {
-//         for (let j = 0; j < k; j++) {
-//             H[i][j] = P[j][i];
-//         }
-//     }
-
-//     // Fill identity matrix part
-//     for (let i = 0; i < r; i++) {
-//         H[i][k + i] = 1;
-//     }
-
-//     return H;
-// }
-
-// // Make H matrix LDPC-like by ensuring low density
-// function makeLDPC(H, targetDensity = 0.1) {
-//     const rows = H.length;
-//     const cols = H[0].length;
-//     const ldpcH = H.map(row => [...row]);
-
-//     // Calculate current density
-//     const currentOnes = ldpcH.flat().reduce((sum, val) => sum + val, 0);
-//     const currentDensity = currentOnes / (rows * cols);
-
-//     if (currentDensity > targetDensity) {
-//         // Randomly remove 1s until target density is reached
-//         while (ldpcH.flat().reduce((sum, val) => sum + val, 0) / (rows * cols) > targetDensity) {
-//             const row = Math.floor(Math.random() * rows);
-//             const col = Math.floor(Math.random() * cols);
-//             if (ldpcH[row][col] === 1) {
-//                 // Ensure we maintain rank by checking if removing this 1 would break rank
-//                 const tempH = ldpcH.map(row => [...row]);
-//                 tempH[row][col] = 0;
-//                 const { rank } = makeFullRank(tempH);
-//                 if (rank === rows) {
-//                     ldpcH[row][col] = 0;
-//                 }
-//             }
-//         }
-//     }
-
-//     return ldpcH;
-// }
 
 
 // Function to compute the generator matrix from a given parity check matrix
@@ -337,19 +186,6 @@ let checkNodes = H.map((_, i) => ({
     label: `z${i}: ?` // Combined ID and value label
 }));
 
-checkNodes.forEach((checkNode, i) => {
-    let sum = 0;
-
-    H[i].forEach((val, j) => {
-        if (val === 1 && !bitNodes[j].peeled) { 
-            sum ^= bitNodes[j].value; // XOR sum for parity
-        }
-    });
-
-    checkNode.value = sum;
-    checkNode.label = `z${i}: ${sum}`; // Update label
-});
-
 let nodes = [...bitNodes, ...checkNodes];
 
 
@@ -358,19 +194,46 @@ let links = [];
 H.forEach((row, i) => {
     row.forEach((val, j) => {
         if (val === 1) {
-            links.push({ source: "x" + j, target: "z" + i });
+            links.push({
+                source: "x" + j,
+                target: "z" + i,
+                isDotted: bitNodes[j].value !== '?' // Add property to track if link should be dotted
+            });
         }
     });
 });
 
-// Add the links to the SVG
+// Add the links to the SVG with conditional styling
 let link = svg.append("g")
     .attr("class", "links")
     .selectAll("line")
     .data(links)
     .enter().append("line")
     .attr("stroke-width", 2)
-    .attr("stroke", "#999");
+    .attr("stroke", "#999")
+    .style("stroke-dasharray", d => d.isDotted ? "5,5" : "none"); // Apply dotted style conditionally
+
+// The rest of your node and label creation code remains the same...
+
+// Update the updateLinks function to maintain the dotted styling
+function updateLinks() {
+    link
+        .attr("x1", d => bitNodes.find(n => n.id === d.source).x)
+        .attr("y1", d => bitNodes.find(n => n.id === d.source).y)
+        .attr("x2", d => checkNodes.find(n => n.id === d.target).x)
+        .attr("y2", d => checkNodes.find(n => n.id === d.target).y)
+        .style("stroke-dasharray", d => d.isDotted ? "5,5" : "none"); // Maintain dotted style during updates
+}
+
+// Add function to update link styles if bit values change
+function updateLinkStyles() {
+    links.forEach(link => {
+        const sourceNode = bitNodes.find(n => n.id === link.source);
+        link.isDotted = sourceNode.value !== '?';
+    });
+
+    link.style("stroke-dasharray", d => d.isDotted ? "5,5" : "none");
+}
 
 // Add the nodes to the SVG
 let node = svg.append("g")
@@ -411,22 +274,48 @@ let labels = svg.append("g")
         if (d.type === "x") {
             return `\\(x_{${d.id.slice(1)}}: ${d.value}\\)`;
         }
-        if(d.type === "z"){
+        if (d.type === "z") {
             return `\\(z_{${d.id.slice(1)}}: ${d.value}\\)`;
         }
         return d.label;
     });
+checkNodes.forEach((checkNode, i) => {
+    let knownValues = [];
+    H[i].forEach((val, j) => {
+        if (val === 1 && !bitNodes[j].peeled && bitNodes[j].value !== '?') {
+            knownValues.push(bitNodes[j].value);
+        }
+    });
 
+    if (knownValues.length > 0) {
+        let sum = knownValues.reduce((a, b) => a ^ b, 0);
+        checkNode.value = sum;
+        checkNode.label = `z${i}: ${sum}`;
+    } else {
+        checkNode.value = '?';
+        checkNode.label = `z${i}: ?`;
+    }
+
+    // Update the label in the DOM
+    const labelElement = svg.select(`foreignObject#${checkNode.id}`)
+        .select("div");
+
+    if (labelElement.node()) {
+        labelElement.html(() => {
+            return `\\(z_{${checkNode.id.slice(1)}}: ${checkNode.value}\\)`;
+        });
+
+
+        // Ensure MathJax processes the new content after the DOM update
+        if (typeof MathJax !== 'undefined') {
+            MathJax.typesetPromise([labelElement.node()])
+                .catch(err => console.error('MathJax rendering error:', err));
+        }
+
+    }
+});
 // Trigger MathJax rendering
 // MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-
-// Update the positions of the links
-function updateLinks() {
-    link.attr("x1", d => bitNodes.find(n => n.id === d.source).x)
-        .attr("y1", d => bitNodes.find(n => n.id === d.source).y)
-        .attr("x2", d => checkNodes.find(n => n.id === d.target).x)
-        .attr("y2", d => checkNodes.find(n => n.id === d.target).y);
-}
 
 // Drag behavior functions
 function dragstarted(event, d) {
@@ -486,7 +375,6 @@ function adjustSVGSize() {
 }
 
 
-
 // Other three options that are not the chosen H matrix
 // const incorrectOptions = setOfH.filter(h => !arraysEqual(h, H)).slice(0, 3);
 
@@ -510,40 +398,6 @@ function arraysEqual(a, b) {
 updateLinks();
 adjustSVGSize();
 
-
-// Function to update the Tanner graph after peeling a node
-function updateGraph() {
-    // Update the positions of the nodes and links after peeling
-    nodes.forEach(node => {
-        if (node.peeled) {
-            // Remove the node from the graph (visual removal)
-            d3.select(`#${node.id}`).remove();
-        }
-    });
-
-    links = links.filter(link => {
-        // Remove links to peeled nodes
-        return !bitNodes.some(n => n.peeled && (link.source === n.id || link.target === n.id)) &&
-            !checkNodes.some(n => n.peeled && (link.source === n.id || link.target === n.id));
-    });
-
-    // Update the SVG with the remaining nodes and links
-    svg.selectAll("line").data(links).enter().append("line")
-        .attr("stroke-width", 2)
-        .attr("stroke", "#999");
-
-    svg.selectAll("circle, rect").data(nodes).enter()
-        .append(d => document.createElementNS("http://www.w3.org/2000/svg", d.type === "x" ? "circle" : "rect"))
-        .attr("r", d => d.type === "x" ? nodeRadius : null)
-        .attr("width", d => d.type === "z" ? nodeRadius * 2 : null)
-        .attr("height", d => d.type === "z" ? nodeRadius * 2 : null)
-        .attr("fill", d => d.type === "x" ? "blue" : "green")
-        .attr("cx", d => d.type === "x" ? d.x : null)
-        .attr("cy", d => d.type === "x" ? d.y : null)
-        .attr("x", d => d.type === "z" ? d.x - nodeRadius : null)
-        .attr("y", d => d.type === "z" ? d.y - nodeRadius : null);
-}
-
 function insertUnderscore(str) {
     return str[0] + '_' + str.slice(1);
 }
@@ -556,30 +410,30 @@ function updateGraphForRound(peeledNodes) {
     peeledNodes.forEach(node => {
         const nodeElement = svg.select(`[id='${node.id}']`);
         nodeElement
-        .transition()
-        .duration(500)
-        .attr("fill", "#ff6b6b")
-        .attr("opacity", 0.6);
-        
+            .transition()
+            .duration(500)
+            .attr("fill", "#ff6b6b")
+            .attr("opacity", 0.6);
+
         // Update all connected links
         const affectedLinks = links.filter(link =>
             link.source === node.id || link.target === node.id
         );
-        
+
         affectedLinks.forEach(link => {
             svg.selectAll("line")
-            .filter(l => l.source === link.source && l.target === link.target)
-            .transition()
-            .duration(500)
-            .attr("stroke", "#ddd")
-            .attr("opacity", 0.3);
+                .filter(l => l.source === link.source && l.target === link.target)
+                .transition()
+                .duration(500)
+                .attr("stroke", "#ddd")
+                .attr("opacity", 0.3);
         });
-        
+
         // Update labels
         svg.select(`text#label-${node.id}`)
-        .text(`${node.id} (Peeled)`);
+            .text(`${node.id} (Peeled)`);
     });
-    
+
     // Update links data structure
     links = links.filter(link =>
         !peeledNodes.some(node =>
@@ -591,28 +445,29 @@ function updateGraphForRound(peeledNodes) {
 // Function to get valid messages for current round
 function getInitialMessages() {
     let messages = [];
-    
+
     // Find check nodes with exactly one erased bit node connection
     let foundMessage = false;
-    
+
     checkNodes.forEach(checkNode => {
         if (checkNode.peeled) return;
-        
+
         // Find connected bit nodes
         let connectedBitNodes = links
-        .filter(link => link.target === checkNode.id)
-        .map(link => bitNodes.find(n => n.id === link.source));
-        
+            .filter(link => link.target === checkNode.id)
+            .map(link => bitNodes.find(n => n.id === link.source));
+
         // Filter out peeled bit nodes
         let unpeeledBitNodes = connectedBitNodes.filter(node => !node.peeled);
-        
+
         // Find erased bit nodes (value === '?')
         let erasedBitNodes = unpeeledBitNodes.filter(node => node.value === '?');
-        
+        console.log(erasedBitNodes)
+
         if (erasedBitNodes.length === 1) {
             foundMessage = true;
             let erasedNode = erasedBitNodes[0];
-            
+
             // Compute message: sum of all other connected bit nodes modulo 2
             let sum = 0;
             unpeeledBitNodes.forEach(node => {
@@ -620,7 +475,9 @@ function getInitialMessages() {
                     sum ^= node.value;
                 }
             });
-            
+
+            console.log(erasedNode.id)
+
             messages.push({
                 from: checkNode.id,
                 to: erasedNode.id,
@@ -628,8 +485,17 @@ function getInitialMessages() {
             });
         }
     });
-    
-    return foundMessage ? messages : null;
+
+    if (foundMessage) {
+        return {
+            found: true,
+            messages: messages
+        };
+    }
+    return {
+        found: false,
+        messages: []
+    };
 }
 
 generateMessageOptions(getInitialMessages());
@@ -639,13 +505,20 @@ function generateMessageOptions(correctMessages) {
     form.innerHTML = '';
 
     const options = [];
-    const noValidMessages = correctMessages === null;
+
+    console.log(correctMessages)
 
     // Option 1: Correct messages
-    if (!noValidMessages) {
+    if (correctMessages.found) {
         options.push({
             id: 'correct',
-            messages: [{ message: `${correctMessages} = 1` }],
+            messages: correctMessages.messages,
+            label: 'Messages passing in this round:'
+        });
+    } else {
+        options.push({
+            id: 'process-over',
+            messages: [{ message: "No message will be sent. The process is over." }],
             label: 'Messages passing in this round:'
         });
     }
@@ -706,7 +579,7 @@ function generateMessageOptions(correctMessages) {
     });
 
     // Option 4: Process over or unconnected node messages
-    if (noValidMessages) {
+    if (!correctMessages.found) {
         const invalidMessages = generateInvalidMessages(2);
         ensureNonEmpty(invalidMessages);
         options.push({
@@ -727,6 +600,8 @@ function generateMessageOptions(correctMessages) {
     shuffledOptions.forEach((option, index) => {
         const div = document.createElement('div');
         div.className = 'option';
+        div.style.paddingTop = '0.4em'
+
 
         const radio = document.createElement('input');
         radio.type = 'radio';
@@ -736,8 +611,20 @@ function generateMessageOptions(correctMessages) {
 
         const label = document.createElement('label');
         label.htmlFor = option.id;
-        label.innerHTML = `${option.label}<br>` +
-            option.messages.map(msg => msg.message || msg).join(', '); // Fix for [Object][Object] issue
+
+        // Create separate spans for label and messages with styling
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = option.label;
+        // labelSpan.style.display = 'block';
+        // labelSpan.style.marginBottom = '12px';  // Adjust this value to control spacing
+
+        const messagesSpan = document.createElement('span');
+        messagesSpan.style.display = 'block'
+        // messagesSpan.style.paddingTop = '0.4em'
+        messagesSpan.innerHTML = option.messages.map(msg => msg.message || msg).join(', ');
+
+        label.appendChild(labelSpan);
+        label.appendChild(messagesSpan)
 
         div.appendChild(radio);
         div.appendChild(label);
@@ -748,16 +635,16 @@ function generateMessageOptions(correctMessages) {
 // Function to generate invalid messages between unconnected nodes
 function generateInvalidMessages(count) {
     const invalidMessages = [];
-    const bitNodesUnconnected = bitNodes.filter(bitNode => 
+    const bitNodesUnconnected = bitNodes.filter(bitNode =>
         !links.some(link => link.source === bitNode.id || link.target === bitNode.id)
     );
-    const checkNodesUnconnected = checkNodes.filter(checkNode => 
+    const checkNodesUnconnected = checkNodes.filter(checkNode =>
         !links.some(link => link.source === checkNode.id || link.target === checkNode.id)
     );
 
     while (invalidMessages.length < count) {
         let bitNode, checkNode;
-        
+
         if (bitNodesUnconnected.length > 0 && checkNodesUnconnected.length > 0) {
             bitNode = bitNodesUnconnected[Math.floor(Math.random() * bitNodesUnconnected.length)];
             checkNode = checkNodesUnconnected[Math.floor(Math.random() * checkNodesUnconnected.length)];
@@ -800,66 +687,19 @@ function NextRound() {
         return;
     }
 
-    // Get the current valid messages
-    const currentMessages = getCurrentRoundMessages();
-
-    if (currentMessages.length === 0) {
-        observation.innerHTML = "Decoding complete! No more nodes to peel.";
-        observation.style.color = "green";
-        return;
-    }
-
+    console.log(selectedOption);
     // Check if the selected option is correct
-    if (selectedOption.id !== 'correct') {
-        if (observation.innerHTML === "Incorrect. Try to see which variable nodes have \"meaningful\" messages to pass.") {
-            observation.innerHTML = "Still incorrect. Please review the theory once again.";
-        } else {
-            observation.innerHTML = "Incorrect. Try to see which variable nodes have \"meaningful\" messages to pass.";
-        }
-        observation.style.color = "red";
-        return;
-    }
-
-    // Correct option selected - proceed with the round
-    observation.innerHTML = "Correct!";
-    observation.style.color = "green";
-
-    // Peel the nodes and update the graph
-    let peeledNodes = [];
-    if (currentDirection === 'left-to-right') {
-        bitNodes.forEach(node => {
-            if (!node.peeled && node.value === '?' && getNodeDegrees(node.id) === 1) {
-                node.peeled = true;
-                peeledNodes.push(node);
-            }
-        });
-    } else {
-        checkNodes.forEach(node => {
-            if (!node.peeled && getNodeDegrees(node.id) === 1) {
-                node.peeled = true;
-                peeledNodes.push(node);
-            }
-        });
-    }
-
-    // Update graph visualization
-    updateGraphForRound(peeledNodes);
-    
-    // Switch direction and prepare for next round
-    currentDirection = (currentDirection === 'left-to-right') ? 'right-to-left' : 'left-to-right';
-    currentRound++;
-    
-    // Generate options for the next valid messages
-    const nextMessages = getCurrentRoundMessages();
-    if (nextMessages.length > 0) {
-        generateMessageOptions(nextMessages);
-    } else {
-        observation.innerHTML = "Correct! Now, let's attempt a full decoding!";
+    if (selectedOption.id === 'correct') {
+        observation.innerHTML = "Correct! Now, let's attempt a full decoding.";
         observation.style.color = "green";
+    } else if (observation.innerHTML === "Incorrect! Consider what are the \"meaningful\" messages that can be passed in this round.") {
+        observation.innerHTML = "Still incorrect! Please review the theory once again.";
+        observation.style.color = "red";
+    } else {
+        observation.innerHTML = "Incorrect! Consider what are the \"meaningful\" messages that can be passed in this round.";
+        observation.style.color = "red";
     }
-    
-    // Reset the form selection
-    form.reset();
+
 }
 
 function shuffleArray(array) {
