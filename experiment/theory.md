@@ -52,14 +52,31 @@ $$G=\begin{bmatrix}1&1&0&1&0&0\\
 1&0&1&0&1&0\\
 1&1&1&0&0&1\end{bmatrix}.$$
 
-Clearly, this code has $8$ codewords. Assume that the codeword transmitted is $\bm{x}=(1,0,0,0,1,0)$. Let the received vector be $\bm{y}=(1,0,0,?,?,?)$. We see that there are three erasures here. Essentially, from the discussions in the previous section, finding the bit-wise MAP estimate in this case is the same as finding each bit which is identical in all codewords that are compatible with the received vector $\bm{y}=(1,0,0,?,?,?)$. Writing out the entire set of $8$ codewords, we can observe that there is infact only the one codeword, which is the same as the transmitted codeword, which has this property of being compatible with $\bm{y}$. We now present how the peeling decoder obtains this codeword systematically. 
+Clearly, this code has $8$ codewords. Assume that the codeword transmitted is $\bm{x}=(1,0,0,0,1,0)$. Let the received vector be $\bm{y}=(1,0,0,?,?,?)$. We see that there are three erasures here. Essentially, from the discussions in the previous section, finding the bit-wise MAP estimate in this case is the same as finding each bit which is identical in all codewords that are compatible with the received vector $\bm{y}=(1,0,0,?,1,?)$. Writing out the entire set of $8$ codewords, we can observe that there is infact only the one codeword, which is the same as the transmitted codeword, which has this property of being compatible with $\bm{y}$. We now present how the peeling decoder obtains this codeword systematically. 
 
-![image](files/Users/jzhang/Desktop/Isolated.png)
+We draw the initial Tanner graph in the following manner. 
+---
 
-
-
+<!-- ![image]() -->
+<p align="center">
+  <img src="basictanner(drawiofile).jpg" height="400"/>
+</p>
 
 ---
+
+Here, the symbols near the variable nodes $x_i$ denote the received bits, whereas the symbols $(0,0,0)$ near the check nodes $z_i$ denote the status of the check node. The status of the check nodes will keep changing through the iterations (essentially, what we are doing is solving a system of linear equations in a simplistic way). Also, the decoded bits (which were previously erased) will keep appearing near the variable nodes as and when they are decoded. 
+
+In the next round, messages (which are the same as the values of the variable node) are passed from each non-erased variable nodes $x_i$ to *all* check nodes it is connected to. This is indicated by the red edges with the arrow-head. Each check node which received a message in this round updates its value, as *current-value=previous-value+(sum of received values)*, where the sum is an XOR (binary) sum. These updates along with their calculations are also shown in the figure. 
+
+---
+
+<!-- ![image]() -->
+<p align="center">
+  <img src="stage1.jpg" height="400"/>
+</p>
+
+---
+
 
 As described in the theory of the previous experiment, a memoryless channel is described by the input alphabet $\cal X$ (set of possible values taken by the input random variable $X$), the output alphabet $\cal Y$ (possible values taken by the output random variable $Y$), and the transition probabilities $p_{Y|X}(y|x), \forall x\in{\cal X}, y\in{\cal Y}$. 
 
