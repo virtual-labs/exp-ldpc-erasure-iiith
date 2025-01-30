@@ -724,3 +724,18 @@ function getNodeDegrees(nodeId) {
 // Call this function to start the iterative peeling process
 // nextRound();
 
+function Reset() {
+    const form = document.getElementById('form1');
+    const observation = document.getElementById("tannerQuestionObservation");
+
+    // Clear all selected options
+    Array.from(form.elements).forEach(el => {
+        if (el.type === "radio" || el.type === "checkbox") {
+            el.checked = false;
+        }
+    });
+
+    // Clear observation message
+    observation.innerHTML = "";
+    observation.style.color = "";
+}
