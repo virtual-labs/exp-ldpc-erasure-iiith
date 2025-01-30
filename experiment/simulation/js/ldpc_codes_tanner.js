@@ -292,8 +292,8 @@ checkNodes.forEach((checkNode, i) => {
         checkNode.value = sum;
         checkNode.label = `z${i}: ${sum}`;
     } else {
-        checkNode.value = '?';
-        checkNode.label = `z${i}: ?`;
+        checkNode.value = '0';
+        checkNode.label = `z${i}: 0`;
     }
 
     // Update the label in the DOM
@@ -517,7 +517,7 @@ function generateMessageOptions(correctMessages) {
         });
     } else {
         options.push({
-            id: 'process-over',
+            id: 'correct',
             messages: [{ message: "No message will be sent. The process is over." }],
             label: 'Messages passing in this round:'
         });
@@ -724,3 +724,18 @@ function getNodeDegrees(nodeId) {
 // Call this function to start the iterative peeling process
 // nextRound();
 
+function Reset() {
+    const form = document.getElementById('form1');
+    const observation = document.getElementById("tannerQuestionObservation");
+
+    // Clear all selected options
+    Array.from(form.elements).forEach(el => {
+        if (el.type === "radio" || el.type === "checkbox") {
+            el.checked = false;
+        }
+    });
+
+    // Clear observation message
+    observation.innerHTML = "";
+    observation.style.color = "";
+}

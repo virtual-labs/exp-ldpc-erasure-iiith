@@ -1105,3 +1105,19 @@ function NextRound() {
     observation.innerHTML = "Correct! We can move on to more complicated channel models now.";
     observation.style.color = "green";
 }
+
+function Reset() {
+    const form = document.getElementById('form1');
+    const observation = document.getElementById("tannerQuestionObservation");
+
+    // Clear all selected options
+    Array.from(form.elements).forEach(el => {
+        if (el.type === "radio" || el.type === "checkbox") {
+            el.checked = false;
+        }
+    });
+
+    // Clear observation message
+    observation.innerHTML = "";
+    observation.style.color = "";
+}

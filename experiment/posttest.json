@@ -2,38 +2,89 @@
   "version": 2.0,
   "questions": [
     {
-      "question": "This is a Sample Question 1?",
+      "question": "Which statement is true regarding the complete decoding of the codeword using the peeling decoder occur, given that at least one erasure occured?",
       "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
+        "a": "The number of rounds to complete the decoding will be even.",
+        "b": "The number of rounds will always be odd, to complete the decoding.",
+        "c": "At most two rounds are required.",
+        "d": "At least four rounds are required to complete the decoding."
       },
       "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
+        "a": "Correct option.",
+        "b": "Incorrect. An odd round implies messages from variable to check nodes. Such a round will not be the final one. ",
+        "c": "Incorrect option.  There is no guarantee that two rounds are enough.",
+        "d": "Incorrect. There is no necessity that at least four rounds are needed."
       },
       "correctAnswer": "a",
       "difficulty": "beginner"
     },
     {
-      "question": "This is a Sample Question 2?",
+      "question": "Assume that for a code with minimum distance $>=2$, we transmitted a codeword which was received with a single erasure. How many rounds may be required to correct this erasure using peeling decoding?",
       "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
+        "a": "1",
+        "b": "3",
+        "c": "4",
+        "d": "2"
       },
       "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
+        "a": "Incorrect. At least 2 rounds , one from variable to check, another from check to variable, are needed.",
+        "b": "Incorrect. Think about the rounds systematically.",
+        "c": "Incorrect. Think about the rounds systematically.",
+        "d": "Correct. In the first round, the non-erased symbols will send their messages to the check. Only one erased symbol being there and with minimum distance $>=2$, there will surely be at least one check which is connected to this erased coordinate and also having all other connected variables unerased. Hence this will surely get decoded in round 2"
+      },
+      "correctAnswer": "d",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Does the peeling decoder perform block-wise MAP decoding? Select the most correct option",
+      "answers": {
+        "a": "No, because the peeling decoder is a non-linear decoder.",
+        "b": "Yes, because bit-wise MAP is the same as block-wise MAP, in erasure channels, and the peeling decoder indeed implements bit-wise MAP decoding.",
+        "c": "No, because the peeling decoder decodes a bit $x_i$ only if there is a check of the form $x_i+\\sum_{j\\neq i}x_j$ where $x_j$ are known already. However, block-wise MAP can be more complicated. ",
+        "d": "Yes, because the peeling decoder is just solving linear equations, which is exactly the same as block-wise MAP."
+      },
+      "explanations": {
+        "a": "Incorrect. The peeling decoder is infact a linear decoder",
+        "b": "Incorect. Bit-wise MAP and block-wise MAP are too different decoding rules. ",
+        "c": "Correct option.",
+        "d": "Incorrect option. Both the peeling decoder and the block-wise MAP decoder are essentially solving a system of linear equations (for decoding on erasure channels). However the block-wise MAP decoder is allowed to perform more complicated operations than the peeling decoder, which does bit-wise MAP. "
       },
       "correctAnswer": "c",
+      "difficulty": "advanced"
+    },
+    {
+      "question": "The peeling decoder is called a message-passing decoder because",
+      "answers": {
+        "a": "Messages are passed between check nodes and other check nodes in each round.",
+        "b": "Messages are passed between check nodes and other check nodes in the odd rounds, and between variable nodes in the even rounds.",
+        "c": "Message are passed from check to variable nodes in odd rounds, and variable to check nodes in even rounds.",
+        "d": "Messages are passed from variable to check nodes in odd rounds, and from check to variable nodes in even rounds."
+      },
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Correct."
+      },
+      "correctAnswer": "d",
       "difficulty": "beginner"
+    },
+    {
+      "question": "Select the best option regarding the following statement: 'Peeling decoders are useful to decode only LDPC codes, not general block codes.'",
+      "answers": {
+        "a": "This is true. Peeling decoders need a sparse parity check matrix.",
+        "b": "This is not true. Peeling decoders can be useful for any block codes.",
+        "c": "This is not true. Peeling decoders need a sparse generator matrix, not a sparse parity check.",
+        "d": "This is true, because peeling decoders can only be used with codes of specific codelengths satisfied by LDPC codes, and not on arbitrary codes."
+      },
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Correct. There is nothing about the peeling decoding algorithm itself which prohibits us from using it for general block codes.",
+        "c": "Incorrect. Peeling decoders don't demand a sparse generator or parity check matrix specifically.",
+        "d": "Incorrect. Peeling decoding algorithm puts no specific requirement on the codelength."
+      },
+      "correctAnswer": "b",
+      "difficulty": "advanced"
     }
   ]
 }
