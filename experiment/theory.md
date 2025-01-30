@@ -1,8 +1,10 @@
 We describe the message passing algorithm for achieving Bit-wise Maximum Aposterior Probability Decoding of linear codes on erasure channels. 
 
-Let $\bm{x}=(x_1,\ldots,x_n)\in {\cal C}$ be the codeword transmitted from the linear code $\cal C$ of dimension $k$. Let $\bm{y}=(y_1,\ldots,y_n)$ be the received vector from the channel. The bit-wise MAP estimate of the bit $x_i$ is based on the value of the log-likelihood ratio (LLR) of $x_i$ given $\bm{y}$, denoted by $L(x_i|\bm{y})$, and  defined as follows. 
+In the experiment titled 'Maximum Likelihood (ML) Decoding of Codes on Binary Input Channels', we observed that the block-MAP estimate had a similar expression, except that we were focussed on decoding the estimating the entire transmitted codeword (or the entire 'block') according to the maximum-aposteriori probability expression for the whole codeword given the received vector $\bm{y}$. However, in this and the subsequent experiments regarding decoding of LDPC codes, we will do *bit-wise MAP decoding**.
 
-$$L(x_i)\triangleq \log\left(\frac{p(x_i=0|\bm{y})}{p(x_i=1|\bm{y})\right)$$.
+Let $\bm{x}=(x_0,\ldots,x_{n-1})\in {\cal C}$ be the codeword transmitted from the linear code $\cal C$ of dimension $k$. Let $\bm{y}=(y_0,\ldots,y_{n-1})$ be the received vector from the channel. The bit-wise MAP estimate of the bit $x_i$ is based on the value of the log-likelihood ratio (LLR) of $x_i$ given $\bm{y}$, denoted by $L(x_i|\bm{y})$, and  defined as follows. 
+
+$$L(x_i)\triangleq \log\left(\frac{p(x_i=0|\bm{y})}{p(x_i=1|\bm{y})}\right).$$
 
 <!-- In the case of erasure channels, we assume without loss of generality that $x_i\in\{+1,-1}$, under a bipolar signalling scheme. Thus, the LLR $L(x_i)$ is then defined as  -->
 <!-- $$L(x_i)\triangleq \log\left(\frac{p(x_i=+1|\bm{y})}{p(x_i=-1|\bm{y})\right)$$. -->
@@ -16,23 +18,52 @@ $$\begin{align}
 $$
 Note that we assume ties are broken arbitrarily, i.e., the decoder choose the estimate $\hat{x}_i$ randomly if $L(x_i|\bm{y})=0$. 
 
+
 With this assumption in mind, we describe a decoding technique based on a general class of algorithms on graphs, which are known as message passing algorithms. Essentially, we run a number of rounds of passing messages from the variable nodes of the Tanner graphs to the check nodes and vice-versa. These rounds, when they complete, lead to two possibilities at which the algorithm is terminated. The first possibility is that we end with a fully decoded codeword estimate, which is also correct. The second possibility is that we end up with a partially decoded estimate, which is correct only in the decoded bits, but may have some erased coordinates which cannot be decoded by any algorithm. 
 
 In other words, this iterative procedure of message passing implements the MAP decoding algorithm in an efficient manner, for all LDPC codes. 
 
-We now describe this algorithm. 
+Before describing the algorithm, we give a short note on the motivation for this algorithm. 
+
+### The connection between the bit-wise MAP algorithm and identifying compatible codeword(s)
+
+Observe that, in the erasure channel, for a transmitted codeword $\bm{x}=(x_0,\dots,x_{n-1})$ the received vector $\bm{y}=(y_0,\dots,y_{n-1})$ is such that $y_i=x_i$ or $y_i=?$, for all $i\in\{0,\dots,n-1\}$. The goal in decoding therefore is to reconstruct the erased symbols, as the non-erased symbols in $\bm{y}$ and $\bm{x}$ are identical. 
+
+It is not difficult to see that if the bit-wise MAP decoding estimate for the $i^{th}$ bit of the codeword, denoted by $\hat{x}_i$ is be exactly the correct bit $x_i$ in the transmitted codeword, then among all codewords $\bm{c}\in{\cal C}$ which are compatible with the received vector $\bm{y}$ (i.e., those codewords which match $\bm{y}$ in all unerased positions), the $i^{th}$ co-ordinate $c_i$ is same. 
+
+Since this must be true for all the unerased bits, it must be the case that there must be exactly one codeword, which must be the exact transmitted codeword in ${\cal C}$, if the bit-wise MAP estimate is indeed correct. 
+
+Now, if there is no such unique codeword, then, the bit-wise MAP decoder is surely unable to identify the exact codeword transmitted, in such a scenario. Thus, in this case, we cannot estimate all the codeword bits uniquely. We will have to decode only those bits which are identical in all codewords compatible to $\bm{y}$. The other coordinates may not be possible to be identified uniquely.
+
+With these ideas in mind, we are now ready to describe the working of the message-passing algorithm. 
 
 ### Message Passing on the Tanner Graph for Erasure Channels 
 
-Observe that, in the erasure channel, for a transmitted codeword $\bm{x}=(x_1,\hdots,x_n)$ the received vector $\bm{y}=(y_1,\hdots,y_n)$ is such that $y_i=x_i$ or $y_i=?$, for all $i\in\{1,\hdots,n\}$. The goal in decoding therefore is to reconstruct the erased symbols, as the non-erased symbols in $\bm{y}$ and $\bm{x}$ are identical. 
+Consider the code with the parity check $H$ matrix given as follows. 
 
-It is not difficult to see that the bit-wise MAP decoding estimate for the $i^{th}$ bit of the codeword, denoted by $\hat{x}_i$ will be exactly the correct bit $x_i$ in the transmitted codeword, if and only if, among all codewords $\bm{c}\in{\cal C}$ which are compatible with the received vector $\bm{y}$ (i.e., those codewords which match $\bm{y}$ in all unerased positions), the $i^{th}$ co-ordinate $c_i$ is same. 
+$$H=\begin{bmatrix}1&0&0&1&1&1\\
+0&1&0&1&0&1\\
+0&0&1&0&1&1
+\end{bmatrix}.$$
+
+Observe that any two columns of this matrix are linearly independent, so this code is capable of correcting any erasure pattern with upto two erasures. In fact, some patterns with upto three erasures can also get corrected by a block-wise MAP decoder. But here, we will focus on at most two erasures. Further, the generator matrix of this code can be obtained as 
+%%%%
+$$G=\begin{bmatrix}1&1&0&1&0&0\\
+1&0&1&0&1&0\\
+1&1&1&0&0&1\end{bmatrix}.$$
+
+Clearly, this code has $8$ codewords. Assume that the codeword transmitted is $\bm{x}=(1,0,0,0,1,0)$. Let the received vector be $\bm{y}=(1,0,0,?,?,?)$. We see that there are three erasures here. Essentially, from the discussions in the previous section, finding the bit-wise MAP estimate in this case is the same as finding each bit which is identical in all codewords that are compatible with the received vector $\bm{y}=(1,0,0,?,?,?)$. Writing out the entire set of $8$ codewords, we can observe that there is infact only the one codeword, which is the same as the transmitted codeword, which has this property of being compatible with $\bm{y}$. We now present how the peeling decoder obtains this codeword systematically. 
+
+![image](files/Users/jzhang/Desktop/Isolated.png)
+
+
+
 
 ---
 
 As described in the theory of the previous experiment, a memoryless channel is described by the input alphabet $\cal X$ (set of possible values taken by the input random variable $X$), the output alphabet $\cal Y$ (possible values taken by the output random variable $Y$), and the transition probabilities $p_{Y|X}(y|x), \forall x\in{\cal X}, y\in{\cal Y}$. 
 
-Consider that we use the channel $n$ times, i.e, our input sequence is a vector $\bm{x}=(x_1,\ldots,x_n)\in {\cal X}^n$ (recall that ${\cal X}^n$ denotes the set of all $n$-length tuples with entries from ${\cal X}$). Because of the noisy characteristics of the channel (governed by the transition probabilities $p_{Y|X}$), the transmitted input vector $\bm{x}$ is transformed, into a random output vector $\bm{Y}=(Y_1,\ldots,Y_n)$, governed by the transition probabilites $p_{\bm{Y}|\bm{X}}(\bm{y}|\bm{x})=\prod_{i=1}^np(y_i|x_i)$. 
+Consider that we use the channel $n$ times, i.e, our input sequence is a vector $\bm{x}=(x_0,\ldots,x_{n-1})\in {\cal X}^n$ (recall that ${\cal X}^n$ denotes the set of all $n$-length tuples with entries from ${\cal X}$). Because of the noisy characteristics of the channel (governed by the transition probabilities $p_{Y|X}$), the transmitted input vector $\bm{x}$ is transformed, into a random output vector $\bm{Y}=(y_0,\ldots,y_{n-1})$, governed by the transition probabilites $p_{\bm{Y}|\bm{X}}(\bm{y}|\bm{x})=\prod_{i=1}^np(y_i|x_i)$. 
 
 The receiver observes the output sequence $\bm{Y}=\bm{y}$. The goal of the receiver is then to decode the transmitted vector $\bm{x}$. The estimate of the transmitted vector is denoted by $\hat{\bm{x}}$. However, because of the fact that the channel noise is random, there could be several possible vectors in ${\cal X}^n$ which result in the same received vector $\bm{y}$. Therefore, the decoder at the receiver has to have some *metric*, based on which it can decide the value for the estimate  $\hat{\bm{x}}$. 
 
@@ -134,7 +165,7 @@ $$
 &=arg_{\bm{x}\in{\cal C}}\min (||\bm{y}||^2+||\bm{x}||^2-2\langle\bm{y},\bm{x}\rangle),
 \end{align}
 $$
-where $\langle\bm{y},\bm{x}\rangle$ is just the scalar product (also known as the ***correlation***) between the vectors $\bm{y}=(y_1,...,y_n)$ and $\bm{x}=(x_1,...,x_n)$, which is precisely $\sum_{i=1}^nx_iy_i$. Note that $n=5$ is the blocklength of the code $\cal C$, in our example. Now, the minimization above is with respect to all $\bm{x}\in{\cal C}$. Observe that the value of $||\bm{y}||^2$ does not change in this minimization. Further, for any $\bm{x}\in{\cal C}$, it is easy to see that $||\bm{x}||=n$ (where $n=5$, in our example), and is therefore constant too. Therefore, the minimization above can be re-written as 
+where $\langle\bm{y},\bm{x}\rangle$ is just the scalar product (also known as the ***correlation***) between the vectors $\bm{y}=(y_0,...,y_{n-1})$ and $\bm{x}=(x_0,...,x_{n-1})$, which is precisely $\sum_{i=1}^nx_iy_i$. Note that $n=5$ is the blocklength of the code $\cal C$, in our example. Now, the minimization above is with respect to all $\bm{x}\in{\cal C}$. Observe that the value of $||\bm{y}||^2$ does not change in this minimization. Further, for any $\bm{x}\in{\cal C}$, it is easy to see that $||\bm{x}||=n$ (where $n=5$, in our example), and is therefore constant too. Therefore, the minimization above can be re-written as 
 $$
 \begin{align}
 \hat{\bm{x}}=arg_{\bm{x}\in{\cal C}}\max\langle\bm{y},\bm{x}\rangle.
