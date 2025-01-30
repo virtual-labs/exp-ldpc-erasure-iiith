@@ -517,7 +517,7 @@ function generateMessageOptions(correctMessages) {
         });
     } else {
         options.push({
-            id: 'process-over',
+            id: 'correct',
             messages: [{ message: "No message will be sent. The process is over." }],
             label: 'Messages passing in this round:'
         });
