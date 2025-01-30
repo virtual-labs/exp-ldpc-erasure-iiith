@@ -293,7 +293,7 @@ checkNodes.forEach((checkNode, i) => {
         checkNode.label = `z${i}: ${sum}`;
     } else {
         checkNode.value = '0';
-        checkNode.label = `z${i}: ?`;
+        checkNode.label = `z${i}: 0`;
     }
 
     // Update the label in the DOM
