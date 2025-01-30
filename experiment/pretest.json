@@ -2,89 +2,72 @@
   "version": 2.0,
   "questions": [
     {
-      "question": "[ENTIRE THING NEEDS REVISION] Consider a Gaussian distribution given by its pdf $f(x) = \\frac{1}{5\\sqrt{2\\pi}}e^{-\\frac{(x-\\pi)^2}{50}}$. Choose the correct options for the mean and variance, respectively, for the given distribution.",
+      "question": "Consider the code $\\mathcal{C} = \\{\\boldsymbol{x_1}=(0,0,0,0,0), \\boldsymbol{x_2}=(1,0,1,0,1), \\boldsymbol{x_3}=(0,1,0,1,1), \\boldsymbol{x_4}=(1,1,1,1,0) \\}$. Suppose a codeword from $\\mathcal{C}$ is transmitted over a $BEC(\\epsilon)$. Choose the option corresponding to the output of the ML decoder if the received vector is $\\boldsymbol{y}=(1,?,1,?,0)$.",
       "answers": {
-        "a": "$5, \\pi$",
-        "b": "$\\pi, 5$",
-        "c": "$25, \\pi$",
-        "d": "$\\pi, 25$"
+        "a": "$(0,0,0,0,0)$",
+        "b": "$(1,0,1,0,1)$",
+        "c": "$(0,1,0,1,1)$",
+        "d": "$(1,1,1,1,0)$"
       },
       "explanations": {
-        "a": "Incorrect option. The Gaussian distribution with mean $\\mu$ and variance $\\sigma$ can be estimated by modeling the given distribution using the formula $f(x) = \\frac{1}{\\sqrt{2\\pi \\sigma}}e^{-\\frac{(x - \\mu)^2}{2 \\sigma}}$.",
-        "b": "Incorrect option. The Gaussian distribution with mean $\\mu$ and variance $\\sigma$ can be estimated by modeling the given distribution using the formula $f(x) = \\frac{1}{\\sqrt{2\\pi \\sigma}}e^{-\\frac{(x - \\mu)^2}{2 \\sigma}}$.",
-        "c": "Incorrect option. The Gaussian distribution with mean $\\mu$ and variance $\\sigma$ can be estimated by modeling the given distribution using the formula $f(x) = \\frac{1}{\\sqrt{2\\pi \\sigma}}e^{-\\frac{(x - \\mu)^2}{2 \\sigma}}$.",
-        "d": "Correct option."
+        "a": "Incorrect option. The received vector $\\boldsymbol{y}$ is inconsistent with $(0,0,0,0,0)$.",
+        "b": "Correct option. The received vector $\\boldsymbol{y} = (1,?,1,?,0)$ maximizes $p(\\boldsymbol{y} \\mid \\boldsymbol{x})$. Since $p(\\boldsymbol{y} \\mid \\boldsymbol{x_2}) = \\epsilon^2 (1-\\epsilon)^3$ and $p(\\boldsymbol{y} \\mid \\boldsymbol{x_2}) > p(\\boldsymbol{y} \\mid \\boldsymbol{x_i}) = 0$ for $i = 1,3,4$, we conclude that $\\boldsymbol{x_2}$ is the ML estimate.",
+        "c": "Incorrect option. The received vector $\\boldsymbol{y}$ is inconsistent with $(0,1,0,1,1)$.",
+        "d": "Incorrect option. The received vector $\\boldsymbol{y}$ is inconsistent with $(1,1,1,1,0)$."
       },
-      "correctAnswer": "d",
-      "difficulty": "beginner"
+      "correctAnswer": "b",
+      "difficulty": "advanced"
     },
     {
-      "question": "Suppose $A = \\{1, \\pi, 3, 2.8, -5, 25\\}$. Find $\\hat{x} = arg \\max_{x \\in A} x^2$.",
+      "question": "Choose the correct parity-check matrix that corresponds to the given Tanner graph: <br> <div style=\"text-align: center;\"><img src=\"./images/tanner_pretest.png\" style=\"width: 250px; height: auto;\"></div>",
       "answers": {
-        "a": "$\\pi$",
-        "b": "$25$",
-        "c": "$2.8$",
-        "d": "$-5$"
+        "a": "$H = \\begin{bmatrix} 1 & 0 & 1 & 1 & 0 & 0 \\\\ 0 & 1 & 1 & 0 & 1 & 0 \\\\ 0 & 0 & 0 & 1 & 1 & 1 \\end{bmatrix}$",
+        "b": "$H = \\begin{bmatrix} 1 & 0 & 0 & 1 & 0 & 1 \\\\ 0 & 1 & 0 & 1 & 0 & 0 \\\\ 0 & 0 & 1 & 0 & 1 & 1 \\end{bmatrix}$",
+        "c": "$H = \\begin{bmatrix} 1 & 1 & 1 & 0 & 1 & 0 \\\\ 0 & 1 & 0 & 1 & 0 & 1 \\\\ 1 & 0 & 1 & 0 & 1 & 1 \\end{bmatrix}$",
+        "d": "$H = \\begin{bmatrix} 0 & 1 & 1 & 1 & 1 & 0 \\\\ 1 & 0 & 1 & 0 & 1 & 1 \\\\ 1 & 1 & 0 & 0 & 1 & 0 \\end{bmatrix}$"
       },
       "explanations": {
-        "a": "This option is incorrect. It should be noted that $\\pi^2$ is less than the square of some other elements, i.e. $\\{-5, 25\\}$ in the set. Which, clearly indicates that $\\hat{x} \\neq \\pi$.",
-        "b": "$25^2$ is the largest value among all squares of the elements in $A$. Hence, this is the correct option.",
-        "c": "This option is incorrect. It should be noted that $2.8^2$ is less than the square of some other elements, i.e. $\\{\\pi, -5, 25\\}$ in the set. Which, clearly indicates that $\\hat{x} \\neq 2.8$.",
-        "d": "This option is incorrect It should be noted that $(-5)^2$ is less than the square of some other element, i.e. $\\{25\\}$ in the set. Which, clearly indicates that $\\hat{x} \\neq -5$."
+        "a": "This is the correct answer. The matrix $H$ corresponds to the given Tanner graph, as shown by the positions of the 1s in the matrix matching the edges of the Tanner graph.",
+        "b": "This option is incorrect. The matrix $H$ does not match the edges in the Tanner graph.",
+        "c": "This option is incorrect. The matrix $H$ does not align with the structure of the given Tanner graph.",
+        "d": "This option is incorrect. The matrix $H$ does not correspond to the Tanner graph in question."
+      },
+      "correctAnswer": "a",
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "Find the vector $(x, y) \\in \\mathbb{F}_3^2$ which satisfies the following constraints: $$ \\begin{aligned} x + 2y &= 2 \\\\ 2x - y &= 1 \\end{aligned} $$",
+      "answers": {
+        "a": "$(\\frac{4}{5}, \\frac{3}{5})$",
+        "b": "$(2, 0)$",
+        "c": "$(1, 2)$",
+        "d": "$(1, 0)$"
+      },
+      "explanations": {
+        "a": "This option is not valid because the solution does not lie in $\\mathbb{F}_3^2$.",
+        "b": "This is the correct answer. Substituting $x = 0$ and $y = 1$ into both equations satisfies them in $\\mathbb{F}_3$ i.e. $ 2 + 2(0) \\equiv 2 \\pmod{3}$ and $2(2) - 0 = 4 \\equiv 1 \\pmod{3}$",
+        "c": "This option is incorrect. Substituting $x = 1$ and $y = 2$ does not satisfy both equations.",
+        "d": "This option is incorrect. Substituting $x = 2$ and $y = 0$ does not satisfy both equations."
       },
       "correctAnswer": "b",
       "difficulty": "beginner"
     },
     {
-      "question": "Choose the correct option for given two statements. $ \\\\ \\text{1. BEC can flip bit value. }\\\\ \\text{2. BSC can erase bit value.}$",
+      "question": "Write the parity check equations corresponding to the following Tanner graph <br> <div style=\"text-align: center;\"><img src=\"./images/tanner_pretest_eqsn.svg\" style=\"width: 250px; height: auto;\"></div>",
       "answers": {
-        "a": "Both $1$ and $2$ are wrong.",
-        "b": "$1$ is correct, $2$ is wrong.",
-        "c": "$1$ is wrong, $2$ is correct.",
-        "d": "Both $1$ and $2$ are correct."
+        "a": "$x_0 + x_2 + x_3 + x_5 = 1, x_1 = 1, x_0 + x_2 + x_3 + x_5 = 0$",
+        "b": "$x_0 + x_2 + x_4 = 0, x_1 + x_3 + x_5 = 0, x_2 + x_4 + x_6 = 0$",
+        "c": "$x_0 + x_2 + x_3 + x_5 = 1, x_1 = 1, x_0 + x_2 + x_4 + x_5 = 0$",
+        "d": "$x_2 + x_3 + x_5 = 0, x_0 + x_4 + x_6 = 0, x_2 + x_5 + x_6 = 0$"
       },
       "explanations": {
-        "a": "This option is true. With respect to statement $1$ observe that the Binary Erasure Channel (BEC) erases the transmitted symbol with some probability but cannot flip the bit value. Whereas, with respect to statement $2$ observe that the Binary Symmetry Channel (BSC) flips the transmitted symbols with some probability but cannot erase the bit value.",
-        "b": "This option is false due to first statement. With respect to statement $1$ observe that the Binary Erasure Channel (BEC) erases the transmitted symbol with some probability but cannot flip the bit value.",
-        "c": "This option is false due to second statement. With respect to statement $2$ observe that the Binary Symmetry Channel (BSC) flips the transmitted symbols with some probability but cannot erase the bit value.",
-        "d": "This option is flase because both statements are false. With respect to statement $1$ observe that the Binary Erasure Channel (BEC) erases the transmitted symbol with some probability but cannot flip the bit value. Whereas, with respect to statement $2$ observe that the Binary Symmetry Channel (BSC) flips the transmitted symbols with some probability but cannot erase the bit value."
+        "a": "This answer is not correct. The given parity check equations does't correspond to the Tanner graph.",
+        "b": "This option is incorrect. The parity check equations do not align with the structure of the given Tanner graph.",
+        "c": "This option is correct. The parity check equations match the edges in the Tanner graph.",
+        "d": "This option is incorrect. The parity check equations do not correspond to the given Tanner graph."
       },
       "correctAnswer": "a",
-      "difficulty": "beginner"
-    },
-    {
-      "question": "Let $\\mathcal{C} =$ $\\{(0,0,0,\\cdots,0),$ $(1,1,1,\\cdots,1)\\}$ be a $n$-length code. Suppose a codeword from $\\mathcal{C}$ is transmitted over a $BEC(\\epsilon)$. Find the maximum number of erasures that allows unambiguous recovery of the transmitted codeword.",
-      "answers": {
-        "a": "$\\frac{n}{2}$",
-        "b": "$\\frac{n-1}{2}$",
-        "c": "$n-1$",
-        "d": "$1$"
-      },
-      "explanations": {
-        "a": "Incorrect option. In this case any codeword from $\\mathcal{C}$ transmitted over a Binary Erasure Channel ($BEC(\\epsilon)$), the original message can still be recovered even if all symbols, except one, are erased. Note that the $BEC(\\epsilon)$ erases the transmitted bit, while the $BSC(p)$ flips it.",
-        "b": "Incorrect option. In this case any codeword from $\\mathcal{C}$ transmitted over a Binary Erasure Channel ($BEC(\\epsilon)$), the original message can still be recovered even if all symbols, except one, are erased. Note that the $BEC(\\epsilon)$ erases the transmitted bit, while the $BSC(p)$ flips it.",
-        "c": "Correct option. In this case any codeword from $\\mathcal{C}$ transmitted over a Binary Erasure Channel ($BEC(\\epsilon)$), the original message can still be recovered even if all symbols, except one, are erased. Note that the $BEC(\\epsilon)$ erases the transmitted bit, while the $BSC(p)$ flips it.",
-        "d": "Incorrect option. In this case any codeword from $\\mathcal{C}$ transmitted over a Binary Erasure Channel ($BEC(\\epsilon)$), the original message can still be recovered even if all symbols, except one, are erased. Note that the $BEC(\\epsilon)$ erases the transmitted bit, while the $BSC(p)$ flips it."
-      },
-      "correctAnswer": "c",
-      "difficulty": "beginner"
-    },
-    {
-      "question": "Suppose $\\textbf{x} $ $= (1,0,1,1)$ is being transmitted over Binary Symmetric Channel. Choose the valid received vector.",
-      "answers": {
-        "a": "$(0,1,1,1)$",
-        "b": "$(0,1,1)$",
-        "c": "$(1,?,1,1)$",
-        "d": "$(1,0,?,1)$"
-      },
-      "explanations": {
-        "a": "Correct option. The received codeword may consist of any $4$-length binary tuple.",
-        "b": "Incorrect option. The Binary Symmetric Channel cannot reduce the $4$-length tuple into a tuple of lower length.",
-        "c": "Incorrect option. The Binary Symmetric Channel cannot erase any symbols of a codeword.",
-        "d": "Incorrect option. The Binary Symmetric Channel cannot erase any symbols of a codeword."
-      },
-      "correctAnswer": "a",
-      "difficulty": "beginner"
+      "difficulty": "intermediate"
     }
   ]
 }
