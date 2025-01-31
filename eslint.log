@@ -1,0 +1,79 @@
+
+/home/runner/work/exp-ldpc-erasure-iiith/exp-ldpc-erasure-iiith/experiment/simulation/js/ldpc_codes_anime.js
+   47:13  warning  'd3' is not defined                         no-undef
+   97:7   warning  'node' is assigned a value but never used   no-unused-vars
+  106:11  warning  'd3' is not defined                         no-undef
+  131:29  warning  'd' is defined but never used               no-unused-vars
+  133:9   warning  'd3' is not defined                         no-undef
+  143:5   warning  'd3' is not defined                         no-undef
+  156:20  warning  'event' is defined but never used           no-unused-vars
+  156:27  warning  'd' is defined but never used               no-unused-vars
+  157:5   warning  'd3' is not defined                         no-undef
+  326:10  warning  'submit' is defined but never used          no-unused-vars
+  327:5   warning  'tannerGraphQuestion' is not defined        no-undef
+  328:5   warning  'tannerQuestionObservation' is not defined  no-undef
+  330:5   warning  'correctPrompt' is not defined              no-undef
+  331:5   warning  'incorrectPrompt' is not defined            no-undef
+  332:5   warning  'wrongAgainPrompt' is not defined           no-undef
+  337:9   warning  'tannerQuestionObservation' is not defined  no-undef
+  337:48  warning  'incorrectPrompt' is not defined            no-undef
+  338:9   warning  'tannerQuestionObservation' is not defined  no-undef
+  338:47  warning  'wrongAgainPrompt' is not defined           no-undef
+  339:9   warning  'tannerQuestionObservation' is not defined  no-undef
+  342:9   warning  'tannerQuestionObservation' is not defined  no-undef
+  342:47  warning  'correctPrompt' is not defined              no-undef
+  343:9   warning  'tannerQuestionObservation' is not defined  no-undef
+  345:9   warning  'tannerQuestionObservation' is not defined  no-undef
+  345:47  warning  'incorrectPrompt' is not defined            no-undef
+  346:9   warning  'tannerQuestionObservation' is not defined  no-undef
+  370:17  warning  'anime' is not defined                      no-undef
+  380:17  warning  'd3' is not defined                         no-undef
+  404:17  warning  'anime' is not defined                      no-undef
+  414:17  warning  'd3' is not defined                         no-undef
+
+/home/runner/work/exp-ldpc-erasure-iiith/exp-ldpc-erasure-iiith/experiment/simulation/js/ldpc_codes_tanner.js
+    4:7   warning  'cols' is assigned a value but never used          no-unused-vars
+    5:7   warning  'rate' is assigned a value but never used          no-unused-vars
+    8:5   warning  'currentRound' is assigned a value but never used  no-unused-vars
+   60:35  warning  'n' is defined but never used                      no-unused-vars
+   62:11  warning  'cols' is assigned a value but never used          no-unused-vars
+  115:13  warning  'd3' is not defined                                no-undef
+  229:10  warning  'updateLinkStyles' is defined but never used       no-unused-vars
+  239:5   warning  'node' is assigned a value but never used          no-unused-vars
+  253:11  warning  'd3' is not defined                                no-undef
+  311:13  warning  'MathJax' is not defined                           no-undef
+  321:29  warning  'd' is defined but never used                      no-unused-vars
+  323:9   warning  'd3' is not defined                                no-undef
+  333:5   warning  'd3' is not defined                                no-undef
+  350:20  warning  'event' is defined but never used                  no-unused-vars
+  350:27  warning  'd' is defined but never used                      no-unused-vars
+  351:5   warning  'd3' is not defined                                no-undef
+  382:10  warning  'arraysEqual' is defined but never used            no-unused-vars
+  408:10  warning  'updateGraphForRound' is defined but never used    no-unused-vars
+  679:10  warning  'NextRound' is defined but never used              no-unused-vars
+  716:10  warning  'getNodeDegrees' is defined but never used         no-unused-vars
+  727:10  warning  'Reset' is defined but never used                  no-unused-vars
+
+/home/runner/work/exp-ldpc-erasure-iiith/exp-ldpc-erasure-iiith/experiment/simulation/js/ldpc_decoder.js
+     4:7   warning  'cols' is assigned a value but never used              no-unused-vars
+     5:7   warning  'rate' is assigned a value but never used              no-unused-vars
+    13:5   warning  'currentRound' is assigned a value but never used      no-unused-vars
+   211:35  warning  'n' is defined but never used                          no-unused-vars
+   213:11  warning  'cols' is assigned a value but never used              no-unused-vars
+   263:5   warning  'currentDirection' is assigned a value but never used  no-unused-vars
+   266:13  warning  'd3' is not defined                                    no-undef
+   363:5   warning  'node' is assigned a value but never used              no-unused-vars
+   377:11  warning  'd3' is not defined                                    no-undef
+   419:29  warning  'd' is defined but never used                          no-unused-vars
+   421:9   warning  'd3' is not defined                                    no-undef
+   431:5   warning  'd3' is not defined                                    no-undef
+   447:20  warning  'event' is defined but never used                      no-unused-vars
+   447:27  warning  'd' is defined but never used                          no-unused-vars
+   448:5   warning  'd3' is not defined                                    no-undef
+   480:10  warning  'arraysEqual' is defined but never used                no-unused-vars
+  1071:34  warning  'index' is defined but never used                      no-unused-vars
+  1076:10  warning  'NextRound' is defined but never used                  no-unused-vars
+  1109:10  warning  'Reset' is defined but never used                      no-unused-vars
+
+✖ 70 problems (0 errors, 70 warnings)
+

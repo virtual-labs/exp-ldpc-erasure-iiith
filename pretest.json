@@ -1,0 +1,74 @@
+{
+  "version": 2.0,
+  "questions": [
+    {
+      "question": "Consider the code $\\mathcal{C} = \\{\\boldsymbol{x_1}=(0,0,0,0,0), \\boldsymbol{x_2}=(1,0,1,0,1), \\boldsymbol{x_3}=(0,1,0,1,1), \\boldsymbol{x_4}=(1,1,1,1,0) \\}$. Suppose a codeword from $\\mathcal{C}$ is transmitted over a $BEC(\\epsilon)$. Choose the option corresponding to the output of ML decoder if the received vector is $\\boldsymbol{y}=(1,?,1,?,0)$.",
+      "answers": {
+        "a": "$(0,0,0,0,0)$",
+        "b": "$(1,1,1,1,0)$",
+        "c": "$(0,1,0,1,1)$",
+        "d": "$(1,0,1,0,1)$"
+      },
+      "explanations": {
+        "a": "Incorrect. The received vector $\\boldsymbol{y}$ is inconsistent with $(0,0,0,0,0)$.",
+        "b": "Correct. The received vector $\\boldsymbol{y} = (1,?,1,?,0)$ maximizes $p(\\boldsymbol{y} \\mid \\boldsymbol{x})$. Since $p(\\boldsymbol{y} \\mid \\boldsymbol{x_2}) = \\epsilon^2 (1-\\epsilon)^3$ and $p(\\boldsymbol{y} \\mid \\boldsymbol{x_2}) > p(\\boldsymbol{y} \\mid \\boldsymbol{x_i}) = 0$ for $i = 1,3,4$, we conclude that $\\boldsymbol{x_2}$ is the ML estimate.",
+        "c": "Incorrect. The received vector $\\boldsymbol{y}$ is inconsistent with $(0,1,0,1,1)$.",
+        "d": "Incorrect. The received vector $\\boldsymbol{y}$ is inconsistent with $(1,0,1,0,1)$."
+      },
+      "correctAnswer": "b",
+      "difficulty": "advanced"
+    },
+    {
+      "question": "Choose the correct parity-check matrix that corresponds to the given Tanner graph: <br> <div style=\"text-align: center;\"><img src=\"./images/tanner_pretest.png\" style=\"width: 250px; height: auto;\"></div>",
+      "answers": {
+        "a": "$H = \\begin{bmatrix} 1 & 0 & 1 & 1 & 0 & 0 \\\\ 0 & 1 & 1 & 0 & 1 & 0 \\\\ 0 & 0 & 0 & 1 & 1 & 1 \\end{bmatrix}$",
+        "b": "$H = \\begin{bmatrix} 1 & 0 & 0 & 1 & 0 & 1 \\\\ 0 & 1 & 0 & 1 & 0 & 0 \\\\ 0 & 0 & 1 & 0 & 1 & 1 \\end{bmatrix}$",
+        "c": "$H = \\begin{bmatrix} 1 & 1 & 1 & 0 & 1 & 0 \\\\ 0 & 1 & 0 & 1 & 0 & 1 \\\\ 1 & 0 & 1 & 0 & 1 & 1 \\end{bmatrix}$",
+        "d": "$H = \\begin{bmatrix} 0 & 1 & 1 & 1 & 1 & 0 \\\\ 1 & 0 & 1 & 0 & 1 & 1 \\\\ 1 & 1 & 0 & 0 & 1 & 0 \\end{bmatrix}$"
+      },
+      "explanations": {
+        "a": "Incorrect. The matrix $H$ does not match the edges in the Tanner graph.",
+        "b": "Correct! The matrix $H$ corresponds to the given Tanner graph.",
+        "c": "Incorrect. The matrix $H$ does not match the edges in the Tanner graph.",
+        "d": "Incorrect. The matrix $H$ does not match the edges in the Tanner graph."
+      },
+      "correctAnswer": "b",
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "Find the vector $(x, y) \\in \\mathbb{F}_3^2$ which satisfies the following constraints: $$ \\begin{aligned} x + 2y &= 2 \\\\ 2x - y &= 1 \\end{aligned} $$",
+      "answers": {
+        "a": "$(\\frac{4}{5}, \\frac{3}{5})$",
+        "b": "$(1, 2)$",
+        "c": "$(2, 0)$",
+        "d": "$(1, 0)$"
+      },
+      "explanations": {
+        "a": "Incorrect. $(\\frac{4}{5}, \\frac{3}{5})$ does not lie in $\\mathbb{F}_3^2$.",
+        "b": "Incorrect. Substituting $x = 1$ and $y = 2$ does not satisfy both equations.",
+        "c": "Correct. Substituting $x = 2$ and $y = 0$ into both equations satisfies them in $\\mathbb{F}_3$: $ 2 + 2(0) \\equiv 2 \\pmod{3}$ and $2(2) - 0 \\equiv 4 \\equiv 1 \\pmod{3}$.",
+        "d": "Incorrect. Substituting $x = 1$ and $y = 0$ into both equations does not satisfy them in $\\mathbb{F}_3$."
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    
+    {
+      "question": "Write the parity check equations corresponding to the following Tanner graph <br> <div style=\"text-align: center;\"><img src=\"./images/tanner_pretest_eqsn.svg\" style=\"width: 250px; height: auto;\"></div>",
+      "answers": {
+        "a": "$x_0 + x_2 + x_3 + x_5 = 1, x_1 = 1, x_0 + x_2 + x_3 + x_5 = 0$",
+        "b": "$x_0 + x_2 + x_4 = 0, x_1 + x_3 + x_5 = 0, x_2 + x_4 + x_6 = 0$",
+        "c": "$x_0 + x_2 + x_3 + x_5 = 1, x_1 = 1, x_0 + x_2 + x_4 + x_5 = 0$",
+        "d": "$x_2 + x_3 + x_5 = 0, x_0 + x_4 + x_6 = 0, x_2 + x_5 + x_6 = 0$"
+      },
+      "explanations": {
+        "a": "No! The given parity check equations do not correspond to the Tanner graph.",
+        "b": "Incorrect. The parity check equations do not correspond to the Tanner graph.",
+        "c": "That’s right! The parity check equations match the edges in the Tanner graph.",
+        "d": "Incorrect. The parity check equations do not correspond to the Tanner graph.."
+      },
+      "correctAnswer": "c",
+      "difficulty": "intermediate"
+    }
+  ]
+}
