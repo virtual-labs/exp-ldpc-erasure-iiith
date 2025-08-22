@@ -185,6 +185,7 @@ let checkNodes = H.map((_, i) => ({
 }));
 
 let nodes = [...bitNodes, ...checkNodes];
+let currentDirection = Math.random() < 0.5 ? 'check-to-bit' : 'bit-to-check';
 
 let links = [];
 H.forEach((row, i) => {
@@ -194,7 +195,7 @@ H.forEach((row, i) => {
                 source: "x" + j,
                 target: "z" + i,
                 // Dotted lines for known bits, solid for erased
-                isDotted: bitNodes[j].value !== '?'
+                isDotted: bitNodes[j].value !== '?' && currentDirection === 'check-to-bit'
             });
         }
     });
@@ -243,8 +244,8 @@ checkNodes.forEach(checkNode => {
     connectedKnownBits.forEach(bit => {
         partialSum ^= parseInt(bit.value);
     });
-    
-    checkNode.value = partialSum;
+
+    checkNode.value = currentDirection === 'check-to-bit' ? partialSum : 0;
 });
 
 // Draw labels with correct initial values
@@ -262,13 +263,13 @@ svg.append("g")
     .style("font-size", "15px")
     .html(d => {
         const sub = d.id.slice(1);
-        return `\\(${d.id[0]}_{${sub}}: ${d.value}\\)`;
+        const displayValue = (d.type === 'z' && currentDirection !== 'check-to-bit') ? '0' : d.value;
+        return `\\(${d.id[0]}_{${sub}}: ${displayValue}\\)`;
     });
 
 
 // --- 5. Interactive Quiz Logic ---
 
-let currentDirection; // 'check-to-bit' or 'bit-to-check'
 
 // Helper utility functions
 function insertUndcore(str) { return str[0] + '_' + str.slice(1); }
@@ -323,7 +324,7 @@ function getCheckToBitMessages() {
             .filter(link => link.target === checkNode.id)
             .map(link => bitNodes.find(n => n.id === link.source))
             .filter(node => !node.peeled);
-            
+
         const erasedBitNodes = connectedBitNodes.filter(node => node.value === '?');
 
         if (erasedBitNodes.length === 1) {
@@ -340,40 +341,56 @@ function getCheckToBitMessages() {
 }
 
 /**
+ * ### FUNCTION UPDATED ###
  * Determines the correct messages from Bit Nodes to Check Nodes.
- * This is the "update" step of the peeling decoder.
- * Per the user's request, dotted/removed edges cannot pass messages.
+ * This is the "update" step. All known variable nodes send their value
+ * to all their neighbors.
  * @returns {object} An object indicating if messages were found and the messages themselves.
  */
 function getBitToCheckMessages() {
-    // According to the strict interpretation that dotted lines are fully removed,
-    // no messages can be passed from variable nodes to check nodes in this initial state.
-    return { found: false, messages: [] };
+    let messages = [];
+    let foundMessage = false;
+
+    bitNodes.forEach(bitNode => {
+        // A message is sent if the variable node's value is known
+        if (bitNode.value !== '?') {
+            foundMessage = true;
+            const connectedCheckNodes = links
+                .filter(link => link.source === bitNode.id)
+                .map(link => checkNodes.find(n => n.id === link.target));
+
+            connectedCheckNodes.forEach(checkNode => {
+                messages.push({
+                    message: `\\(\\mu_{${insertUndcore(bitNode.id)}\\to ${insertUndcore(checkNode.id)}} = ${bitNode.value}\\)`
+                });
+            });
+        }
+    });
+    return { found: foundMessage, messages };
 }
 
+
 /**
+ * ### FUNCTION UPDATED ###
  * Generates the multiple-choice quiz options and displays them in the form.
  */
 function generateMessageOptions() {
     const form = document.getElementById('form1');
     form.innerHTML = '';
-    const questionPrompt = document.getElementById('awgnTopQuestion'); 
-    
+    const questionPrompt = document.getElementById('awgnTopQuestion');
+
     let options = [];
     let correctMessages;
-
-    currentDirection = Math.random() < 0.5 ? 'check-to-bit' : 'bit-to-check';
 
     if (currentDirection === 'check-to-bit') {
         questionPrompt.innerHTML = `Consider the Tanner graph below. Messages are being passed from <b>check nodes (right) to variable nodes (left)</b>. Identify the messages in this round by selecting the correct option.`;
         correctMessages = getCheckToBitMessages();
 
         options.push({ id: 'correct', messages: correctMessages.found ? correctMessages.messages : [{ message: "No recovery is possible in this step." }] });
-        const wrongDirection = getBitToCheckMessages(); // This will now be empty
-        // We create a plausible but incorrect distractor for the wrong direction
-        const wrongDirectionDistractor = [{ message: `\\(\\mu_{x_0\\to z_0} = ${bitNodes[0].value}\\)` }];
-        options.push({ id: 'wrong-direction', messages: wrongDirection.messages.length > 0 ? wrongDirection.messages : wrongDirectionDistractor });
 
+        const wrongDirection = getBitToCheckMessages();
+        ensureNonEmpty(wrongDirection.messages);
+        options.push({ id: 'wrong-direction', messages: wrongDirection.messages });
 
         let invalidDegreeMessages = [];
         checkNodes.forEach(node => {
@@ -390,44 +407,31 @@ function generateMessageOptions() {
 
     } else { // bit-to-check
         questionPrompt.innerHTML = `Consider the Tanner graph below. Messages are being passed from <b>variable nodes (left) to check nodes (right)</b>. Identify the messages in this round by selecting the correct option.`;
-        correctMessages = getBitToCheckMessages(); // This is now always empty
-        
-        options.push({ id: 'correct', messages: correctMessages.found ? correctMessages.messages : [{ message: "No updates are sent in this step." }] });
+        correctMessages = getBitToCheckMessages(); // This now returns correct messages
+
+        // The correct answer option
+        options.push({ id: 'correct', messages: correctMessages.found ? correctMessages.messages : [{ message: "No updates can be sent." }] });
+
+        // Distractor: The messages for the wrong direction (recovery)
         const wrongDirection = getCheckToBitMessages();
         ensureNonEmpty(wrongDirection.messages);
         options.push({ id: 'wrong-direction', messages: wrongDirection.messages });
 
+        // Distractor: A message from an erased ('?') node, which is invalid
         let invalidSourceMessages = [];
-        bitNodes.forEach(node => {
-            if (!node.peeled && node.value === '?') {
-                 const connection = links.find(link => link.source === node.id);
-                 if(connection) {
-                    invalidSourceMessages.push({ message: `\\(\\mu_{${insertUndcore(node.id)}\\to ${insertUndcore(connection.target)}} = ${Math.floor(Math.random()*2)}\\)` });
-                 }
+        const erasedNode = bitNodes.find(node => node.value === '?');
+        if (erasedNode) {
+            const connection = links.find(link => link.source === erasedNode.id);
+            if (connection) {
+                invalidSourceMessages.push({ message: `\\(\\mu_{${insertUndcore(erasedNode.id)}\\to ${insertUndcore(connection.target)}} = ${Math.floor(Math.random()*2)}\\)` });
             }
-        });
+        }
         ensureNonEmpty(invalidSourceMessages);
         options.push({ id: 'invalid-source', messages: invalidSourceMessages });
     }
 
-    if (correctMessages.found) {
-         options.push({ id: 'process-over', messages: [{ message: "No message will be sent. The process is over." }] });
-    } else {
-         // Add a plausible distractor of a variable-to-check message
-         const plausibleDistractor = [];
-         const knownBit = bitNodes.find(b => b.value !== '?');
-         if (knownBit) {
-            const connection = links.find(l => l.source === knownBit.id);
-            if (connection) {
-                 plausibleDistractor.push({ message: `\\(\\mu_{${insertUndcore(knownBit.id)}\\to ${insertUndcore(connection.target)}} = ${knownBit.value}\\)` });
-            }
-         }
-         if (plausibleDistractor.length > 0) {
-            options.push({ id: 'plausible-distractor', messages: plausibleDistractor });
-         } else {
-            options.push({ id: 'invalid', messages: generateInvalidMessages(2) });
-         }
-    }
+    // Add a generic "No message sent" distractor
+    options.push({ id: 'no-message', messages: [{ message: "No message will be sent." }] });
 
     const shuffledOptions = shuffleArray(options);
     shuffledOptions.forEach((option) => {
@@ -454,6 +458,7 @@ function generateMessageOptions() {
 // --- 6. UI Event Handlers ---
 
 /**
+ * ### FUNCTION UPDATED ###
  * Handles the "Submit" button click, checks the answer, and provides feedback.
  */
 function NextRound() {
@@ -468,7 +473,7 @@ function NextRound() {
     }
 
     if (selectedOption.id === 'correct') {
-        observation.innerHTML = "Correct! You've identified the right message passing direction and conditions. 👍";
+        observation.innerHTML = "Correct! You've identified the right message passing direction and conditions.";
         observation.style.color = "green";
     } else {
         let feedback = "Incorrect. ";
@@ -477,8 +482,9 @@ function NextRound() {
             feedback += `Remember the question asked for messages from <b>${dir}</b>.`;
         } else if (currentDirection === 'check-to-bit' && selectedOption.id === 'invalid-degree') {
             feedback += "A check node can only resolve a bit's value if it's connected to exactly one unknown bit."
-        } else if (currentDirection === 'bit-to-check' && (selectedOption.id === 'invalid-source' || selectedOption.id === 'plausible-distractor')) {
-            feedback += "Since the edges for known bits are removed (dotted), no update messages can be sent from them."
+        } else if (currentDirection === 'bit-to-check') {
+            // Corrected feedback for the bit-to-check direction
+            feedback += "In the update step, messages are sent from all *known* variable nodes (those not marked with '?')."
         } else {
             feedback += "Please review the conditions for message passing."
         }
