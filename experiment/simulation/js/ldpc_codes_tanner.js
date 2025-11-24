@@ -1,11 +1,24 @@
-// select a random H matrix
+/**
+ * LDPC Peeling Decoder Interactive Simulation
+ *
+ * This script performs the following steps:
+ * 1.  Sets up an LDPC code by selecting a predefined parity-check matrix (H)
+ * and deriving its generator matrix (G).
+ * 2.  Generates a random message, encodes it into a codeword, and simulates
+ * erasures by replacing some bits with '?'.
+ * 3.  Uses D3.js to render a Tanner graph, a visual representation of the code,
+ * with variable nodes (circles) and check nodes (squares).
+ * 4.  Correctly calculates and displays the initial values of the check nodes
+ * based on the known (non-erased) variable nodes.
+ * 5.  Creates an interactive quiz that randomly asks the user to identify
+ * the correct messages being passed in one of two directions:
+ * a) Check-to-Variable (recovery step)
+ * b) Variable-to-Check (update step)
+ * 6.  Provides feedback on the user's answer, explaining the core principles
+ * of the peeling decoder.
+ */
 
-const rows = Math.floor(Math.random() * 3) + 3;
-const cols = Math.floor(Math.random() * 3) + rows + 1;
-const rate = Math.random() * 0.5 + 0.25;
-
-// Add tracking variables
-let currentRound = 0;
+// --- 1. LDPC Code Setup ---
 
 const predefinedParityCheckMatrices = [
     {
@@ -46,134 +59,120 @@ const predefinedParityCheckMatrices = [
     },
 ];
 
-
-
-const GH = generateLDPCMatrices();
-const G = GH.generatorMatrix;
-const H = GH.parityCheckMatrix;
-
-console.log("H matrix:", H);
-console.log("G matrix:", G);
-
-
-// Function to compute the generator matrix from a given parity check matrix
+/**
+ * Computes the generator matrix G from a systematic parity-check matrix H.
+ * H is assumed to be in the form [P^T | I], so G = [I | P].
+ * @param {number[][]} H - The parity-check matrix.
+ * @param {number} k - The message length.
+ * @param {number} n - The codeword length.
+ * @returns {number[][]} The generator matrix G.
+ */
 function getGeneratorMatrix(H, k, n) {
     const rows = H.length;
-    const cols = H[0].length;
-
-    // Verify the input matrix is systematic
     const PTranspose = H.map(row => row.slice(0, k));
-    const identity = H.map(row => row.slice(k));
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < rows; j++) {
-            if (identity[i][j] !== (i === j ? 1 : 0)) {
-                throw new Error("Input parity check matrix is not in systematic form.");
-            }
-        }
-    }
-
-    // Transpose PTranspose to get P
     const P = Array.from({ length: k }, (_, i) =>
         Array.from({ length: rows }, (_, j) => PTranspose[j][i])
     );
-
-    // Construct G = [I_k | P]
     const identityK = Array.from({ length: k }, (_, i) =>
         Array.from({ length: k }, (_, j) => (i === j ? 1 : 0))
     );
     return identityK.map((row, i) => [...row, ...P[i]]);
 }
 
-// Main function to generate LDPC code matrices
+/**
+ * Selects a random H matrix and computes its corresponding G matrix.
+ * @returns {object} An object containing the generator and parity-check matrices.
+ */
 function generateLDPCMatrices() {
     const randomIndex = Math.floor(Math.random() * predefinedParityCheckMatrices.length);
     const { H, k, n } = predefinedParityCheckMatrices[randomIndex];
-
-    // Generate the generator matrix from the selected parity check matrix
     const G = getGeneratorMatrix(H, k, n);
-
-    console.log("This works succesfully");
-    // Return the generator and parity check matrices
     return {
         generatorMatrix: G,
         parityCheckMatrix: H,
-
     };
 }
 
-// SVG dimensions
+const { generatorMatrix: G, parityCheckMatrix: H } = generateLDPCMatrices();
+
+// --- 2. Message Encoding and Error Simulation ---
+
+/**
+ * Generates a random binary message of length k.
+ * @param {number} k - The length of the message.
+ * @returns {number[]} The random message vector.
+ */
+function generateRandomMessage(k) {
+    return Array.from({ length: k }, () => Math.floor(Math.random() * 2));
+}
+
+/**
+ * Encodes a message using the generator matrix G.
+ * @param {number[]} message - The message vector.
+ * @param {number[][]} G - The generator matrix.
+ * @returns {number[]} The resulting codeword.
+ */
+function encodeMessage(message, G) {
+    const n = G[0].length;
+    const codeword = new Array(n).fill(0);
+    for (let j = 0; j < n; j++) {
+        for (let i = 0; i < message.length; i++) {
+            codeword[j] = (codeword[j] + message[i] * G[i][j]) % 2;
+        }
+    }
+    return codeword;
+}
+
+/**
+ * Introduces erasures ('?') into a codeword to simulate a noisy channel.
+ * @param {number[]} codeword - The original codeword.
+ * @param {number} errorRate - The probability of a bit being erased.
+ * @returns {string[]} The received word with erasures.
+ */
+function introduceErrors(codeword, errorRate = 0.3) {
+    const corrupted = codeword.map(bit => Math.random() < errorRate ? '?' : bit.toString());
+    // Ensure at least one error is present for the quiz to be meaningful
+    if (!corrupted.includes('?')) {
+        const randomIndex = Math.floor(Math.random() * codeword.length);
+        corrupted[randomIndex] = '?';
+    }
+    return corrupted;
+}
+
+const message = generateRandomMessage(G.length);
+const codeword = encodeMessage(message, G);
+const receivedWord = introduceErrors(codeword);
+
+
+// --- 3. Tanner Graph Visualization with D3.js ---
+
+// SVG dimensions and layout constants
 const width = 600;
 const height = 400;
 const nodeRadius = 10;
 const bitXShiftLabel = 100;
 const checkXShiftLabel = 15;
 const yLabelShift = -10;
-// Add this at the beginning of your code
-let currentDirection = 'left-to-right';
-
-// Append an SVG element to the #sentCodeword element
-const svg = d3.select("#tannerGraph")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height);
-
-// Define layout variables
 const bitNodeStartX = 100;
 const bitNodeSpacingY = 80;
 const checkNodeStartX = 500;
 const checkNodeSpacingY = 100;
 const verticalOffset = 50;
 
-// Modified node generation
-let message = generateRandomMessage(G.length); // Generate random message of length k
-let codeword = encodeMessage(message, G); // Generate valid codeword
-let receivedWord = introduceErrors(codeword); // Introduce some erasures
+// Append SVG to the designated container
+const svg = d3.select("#tannerGraph")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
-// Function to generate a random message vector of length k
-function generateRandomMessage(k) {
-    return Array.from({ length: k }, () => Math.floor(Math.random() * 2));
-}
-
-// Function to encode a message using generator matrix G
-function encodeMessage(message, G) {
-    // Multiply message vector by generator matrix
-    const n = G[0].length;
-    const codeword = new Array(n).fill(0);
-
-    for (let j = 0; j < n; j++) {
-        for (let i = 0; i < message.length; i++) {
-            codeword[j] = (codeword[j] + message[i] * G[i][j]) % 2;
-        }
-    }
-
-    return codeword;
-}
-
-// Function to introduce errors into codeword
-
-function introduceErrors(codeword, errorRate = 0.3) {
-    const corrupted = codeword.map(bit => {
-        // Randomly flip some bits to '?' based on error rate
-        return Math.random() < errorRate ? '?' : bit.toString();
-    });
-
-    // Ensure at least one error by flipping a random bit if no errors exist
-    if (!corrupted.includes('?')) {
-        const randomIndex = Math.floor(Math.random() * codeword.length);
-        corrupted[randomIndex] = '?';
-    }
-
-    return corrupted;
-}
-
+// Create data structures for nodes and links
 let bitNodes = H[0].map((_, j) => ({
     id: "x" + j,
     type: "x",
     x: bitNodeStartX,
     y: j * bitNodeSpacingY + verticalOffset,
     peeled: false,
-    value: receivedWord[j], // Use value from received word
-    label: `x${j}: ${receivedWord[j]}` // Combined ID and value label
+    value: receivedWord[j],
 }));
 
 let checkNodes = H.map((_, i) => ({
@@ -182,14 +181,12 @@ let checkNodes = H.map((_, i) => ({
     x: checkNodeStartX,
     y: i * checkNodeSpacingY + verticalOffset,
     peeled: false,
-    value: '0',
-    label: `z${i}: ?` // Combined ID and value label
+    value: 0, // Initialize value to 0, will be calculated next
 }));
 
 let nodes = [...bitNodes, ...checkNodes];
+let currentDirection = Math.random() < 0.5 ? 'check-to-bit' : 'bit-to-check';
 
-
-// Create links (edges) between bits and checks based on H matrix
 let links = [];
 H.forEach((row, i) => {
     row.forEach((val, j) => {
@@ -197,67 +194,62 @@ H.forEach((row, i) => {
             links.push({
                 source: "x" + j,
                 target: "z" + i,
-                isDotted: bitNodes[j].value !== '?' // Add property to track if link should be dotted
+                // Dotted lines for known bits, solid for erased
+                isDotted: bitNodes[j].value !== '?' && currentDirection === 'check-to-bit'
             });
         }
     });
 });
 
-// Add the links to the SVG with conditional styling
-let link = svg.append("g")
+// Draw links (edges)
+svg.append("g")
     .attr("class", "links")
     .selectAll("line")
     .data(links)
     .enter().append("line")
+    .attr("x1", d => bitNodes.find(n => n.id === d.source).x)
+    .attr("y1", d => bitNodes.find(n => n.id === d.source).y)
+    .attr("x2", d => checkNodes.find(n => n.id === d.target).x)
+    .attr("y2", d => checkNodes.find(n => n.id === d.target).y)
     .attr("stroke-width", 2)
     .attr("stroke", "#999")
-    .style("stroke-dasharray", d => d.isDotted ? "5,5" : "none"); // Apply dotted style conditionally
+    .style("stroke-dasharray", d => d.isDotted ? "5,5" : "none");
 
-// The rest of your node and label creation code remains the same...
-
-// Update the updateLinks function to maintain the dotted styling
-function updateLinks() {
-    link
-        .attr("x1", d => bitNodes.find(n => n.id === d.source).x)
-        .attr("y1", d => bitNodes.find(n => n.id === d.source).y)
-        .attr("x2", d => checkNodes.find(n => n.id === d.target).x)
-        .attr("y2", d => checkNodes.find(n => n.id === d.target).y)
-        .style("stroke-dasharray", d => d.isDotted ? "5,5" : "none"); // Maintain dotted style during updates
-}
-
-// Add function to update link styles if bit values change
-function updateLinkStyles() {
-    links.forEach(link => {
-        const sourceNode = bitNodes.find(n => n.id === link.source);
-        link.isDotted = sourceNode.value !== '?';
-    });
-
-    link.style("stroke-dasharray", d => d.isDotted ? "5,5" : "none");
-}
-
-// Add the nodes to the SVG
-let node = svg.append("g")
+// Draw nodes (circles for bits, squares for checks)
+svg.append("g")
     .attr("class", "nodes")
-    .selectAll("circle")
+    .selectAll("g")
     .data(nodes)
     .enter()
     .append(d => document.createElementNS("http://www.w3.org/2000/svg", d.type === "x" ? "circle" : "rect"))
-    .attr("r", d => d.type === "x" ? nodeRadius : null) // Only circles get radius
-    .attr("width", d => d.type === "z" ? nodeRadius * 2 : null) // Width for squares
-    .attr("height", d => d.type === "z" ? nodeRadius * 2 : null) // Height for squares
+    .attr("r", d => d.type === "x" ? nodeRadius : null)
+    .attr("width", d => d.type === "z" ? nodeRadius * 2 : null)
+    .attr("height", d => d.type === "z" ? nodeRadius * 2 : null)
     .attr("fill", d => d.type === "x" ? "blue" : "green")
     .attr("cx", d => d.type === "x" ? d.x : null)
     .attr("cy", d => d.type === "x" ? d.y : null)
-    .attr("x", d => d.type === "z" ? d.x - nodeRadius : null) // Center squares
-    .attr("y", d => d.type === "z" ? d.y - nodeRadius : null) // Center squares
-    .call(d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended)
-    );
+    .attr("x", d => d.type === "z" ? d.x - nodeRadius : null)
+    .attr("y", d => d.type === "z" ? d.y - nodeRadius : null);
 
+// --- 4. Calculate and Display Initial Node Values ---
 
-let labels = svg.append("g")
+// Calculate the initial value of each check node based on its known neighbors
+checkNodes.forEach(checkNode => {
+    const connectedKnownBits = links
+        .filter(link => link.target === checkNode.id)
+        .map(link => bitNodes.find(n => n.id === link.source))
+        .filter(node => node.value !== '?');
+
+    let partialSum = 0;
+    connectedKnownBits.forEach(bit => {
+        partialSum ^= parseInt(bit.value);
+    });
+
+    checkNode.value = currentDirection === 'check-to-bit' ? partialSum : 0;
+});
+
+// Draw labels with correct initial values
+svg.append("g")
     .attr("class", "labels")
     .selectAll("foreignObject")
     .data(nodes)
@@ -265,417 +257,210 @@ let labels = svg.append("g")
     .append("foreignObject")
     .attr("x", d => d.type === "x" ? d.x - nodeRadius - bitXShiftLabel : d.x + nodeRadius + checkXShiftLabel)
     .attr("y", d => d.y + yLabelShift)
-    .attr("id", d => d.id)
     .attr("width", 100)
     .attr("height", 30)
     .append("xhtml:div")
     .style("font-size", "15px")
     .html(d => {
-        if (d.type === "x") {
-            return `\\(x_{${d.id.slice(1)}}: ${d.value}\\)`;
-        }
-        if (d.type === "z") {
-            return `\\(z_{${d.id.slice(1)}}: ${d.value}\\)`;
-        }
-        return d.label;
-    });
-checkNodes.forEach((checkNode, i) => {
-    let knownValues = [];
-    H[i].forEach((val, j) => {
-        if (val === 1 && !bitNodes[j].peeled && bitNodes[j].value !== '?') {
-            knownValues.push(bitNodes[j].value);
-        }
+        const sub = d.id.slice(1);
+        const displayValue = (d.type === 'z' && currentDirection !== 'check-to-bit') ? '0' : d.value;
+        return `\\(${d.id[0]}_{${sub}}: ${displayValue}\\)`;
     });
 
-    if (knownValues.length > 0) {
-        let sum = knownValues.reduce((a, b) => a ^ b, 0);
-        checkNode.value = sum;
-        checkNode.label = `z${i}: ${sum}`;
-    } else {
-        checkNode.value = '0';
-        checkNode.label = `z${i}: 0`;
+
+// --- 5. Interactive Quiz Logic ---
+
+
+// Helper utility functions
+function insertUndcore(str) { return str[0] + '_' + str.slice(1); }
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
+    return array;
+}
 
-    // Update the label in the DOM
-    const labelElement = svg.select(`foreignObject#${checkNode.id}`)
-        .select("div");
-
-    if (labelElement.node()) {
-        labelElement.html(() => {
-            return `\\(z_{${checkNode.id.slice(1)}}: ${checkNode.value}\\)`;
-        });
-
-
-        // Ensure MathJax processes the new content after the DOM update
-        if (typeof MathJax !== 'undefined') {
-            MathJax.typesetPromise([labelElement.node()])
-                .catch(err => console.error('MathJax rendering error:', err));
+function generateInvalidMessages(count) {
+    const invalidMessages = [];
+    let attempts = 0;
+    while (invalidMessages.length < count && attempts < 20) {
+        const bitNode = bitNodes[Math.floor(Math.random() * bitNodes.length)];
+        const checkNode = checkNodes[Math.floor(Math.random() * checkNodes.length)];
+        const linkExists = links.some(link => link.source === bitNode.id && link.target === checkNode.id);
+        if (!linkExists) {
+            invalidMessages.push({
+                message: `\\(\\mu_{${insertUndcore(bitNode.id)}\\to ${insertUndcore(checkNode.id)}} = ${Math.floor(Math.random() * 2)}\\)`
+            });
         }
-
+        attempts++;
     }
-});
-// Trigger MathJax rendering
-// MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-
-// Drag behavior functions
-function dragstarted(event, d) {
-    if (!event.active) {
-        d3.select(this).raise().attr("stroke", "black");
-    }
+    return invalidMessages;
 }
 
-// Update the dragged function to maintain label positions
-function dragged(event, d) {
-    d.x = event.x;
-    d.y = event.y;
-
-    // Update node positions
-    d3.select(this)
-        .attr("cx", d.type === "x" ? d.x : null)
-        .attr("cy", d.type === "x" ? d.y : null)
-        .attr("x", d.type === "z" ? d.x - nodeRadius : null)
-        .attr("y", d.type === "z" ? d.y - nodeRadius : null);
-
-    // Update labels positions with the combined ID and value
-
-    labels.filter(l => l.id === d.id)
-        .attr("x", d.type === "x" ? d.x - nodeRadius - bitXShiftLabel : d.x + nodeRadius + checkXShiftLabel)
-        .attr("y", d.y + yLabelShift)
-        .attr("html", d.html);
-
-    updateLinks();
-}
-
-
-function dragended(event, d) {
-    d3.select(this).attr("stroke", null);
-}
-
-// Function to adjust SVG size to fit the updated graph
-function adjustSVGSize() {
-    const xValues = nodes.map(d => d.x);
-    const yValues = nodes.map(d => d.y);
-
-    const minX = Math.min(...xValues) - nodeRadius;
-    const maxX = Math.max(...xValues) + nodeRadius;
-    const minY = Math.min(...yValues) - nodeRadius;
-    const maxY = Math.max(...yValues) + nodeRadius;
-
-    const graphWidth = maxX - minX;
-    const graphHeight = maxY - minY;
-
-    const newWidth = Math.max(graphWidth, width);
-    const newHeight = Math.max(graphHeight, height);
-
-    const offsetX = (newWidth - graphWidth) / 2;
-    const offsetY = (newHeight - graphHeight) / 2;
-
-    svg.attr("width", newWidth).attr("height", newHeight);
-    svg.attr("viewBox", `${minX - offsetX} ${minY - offsetY} ${newWidth} ${newHeight}`);
-}
-
-
-// Other three options that are not the chosen H matrix
-// const incorrectOptions = setOfH.filter(h => !arraysEqual(h, H)).slice(0, 3);
-
-// Helper function to compare two arrays
-function arraysEqual(a, b) {
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-        if (a[i].length !== b[i].length) return false;
-        for (let j = 0; j < a[i].length; j++) {
-            if (a[i][j] !== b[i][j]) return false;
+function ensureNonEmpty(messages) {
+    if (messages.length === 0) {
+        messages.push(...generateInvalidMessages(1));
+        if (messages.length === 0) {
+            messages.push({ message: "No valid messages found." });
         }
     }
-    return true;
 }
 
-
-// Call the function to add options to the form
-// addOptionsToForm();
-
-// Initial call to update links based on static positions
-updateLinks();
-adjustSVGSize();
-
-function insertUnderscore(str) {
-    return str[0] + '_' + str.slice(1);
-}
-
-
-// Initialize the graph with first round options
-
-function updateGraphForRound(peeledNodes) {
-    // Update visual representation for all peeled nodes
-    peeledNodes.forEach(node => {
-        const nodeElement = svg.select(`[id='${node.id}']`);
-        nodeElement
-            .transition()
-            .duration(500)
-            .attr("fill", "#ff6b6b")
-            .attr("opacity", 0.6);
-
-        // Update all connected links
-        const affectedLinks = links.filter(link =>
-            link.source === node.id || link.target === node.id
-        );
-
-        affectedLinks.forEach(link => {
-            svg.selectAll("line")
-                .filter(l => l.source === link.source && l.target === link.target)
-                .transition()
-                .duration(500)
-                .attr("stroke", "#ddd")
-                .attr("opacity", 0.3);
-        });
-
-        // Update labels
-        svg.select(`text#label-${node.id}`)
-            .text(`${node.id} (Peeled)`);
-    });
-
-    // Update links data structure
-    links = links.filter(link =>
-        !peeledNodes.some(node =>
-            link.source === node.id || link.target === node.id
-        )
-    );
-}
-
-// Function to get valid messages for current round
-function getInitialMessages() {
+/**
+ * Determines the correct messages from Check Nodes to Bit Nodes.
+ * This is the "recovery" step of the peeling decoder.
+ * @returns {object} An object indicating if messages were found and the messages themselves.
+ */
+function getCheckToBitMessages() {
     let messages = [];
-
-    // Find check nodes with exactly one erased bit node connection
     let foundMessage = false;
 
     checkNodes.forEach(checkNode => {
         if (checkNode.peeled) return;
 
-        // Find connected bit nodes
-        let connectedBitNodes = links
+        const connectedBitNodes = links
             .filter(link => link.target === checkNode.id)
-            .map(link => bitNodes.find(n => n.id === link.source));
+            .map(link => bitNodes.find(n => n.id === link.source))
+            .filter(node => !node.peeled);
 
-        // Filter out peeled bit nodes
-        let unpeeledBitNodes = connectedBitNodes.filter(node => !node.peeled);
-
-        // Find erased bit nodes (value === '?')
-        let erasedBitNodes = unpeeledBitNodes.filter(node => node.value === '?');
-        console.log(erasedBitNodes)
+        const erasedBitNodes = connectedBitNodes.filter(node => node.value === '?');
 
         if (erasedBitNodes.length === 1) {
             foundMessage = true;
-            let erasedNode = erasedBitNodes[0];
-
-            // Compute message: sum of all other connected bit nodes modulo 2
-            let sum = 0;
-            unpeeledBitNodes.forEach(node => {
-                if (node.value !== '?' && node !== erasedNode) {
-                    sum ^= node.value;
-                }
-            });
-
-            console.log(erasedNode.id)
-
+            const erasedNode = erasedBitNodes[0];
+            const messageValue = checkNode.value;
             messages.push({
-                from: checkNode.id,
-                to: erasedNode.id,
-                message: `\\(\\mu_{${insertUnderscore(checkNode.id)}\\to ${insertUnderscore(erasedNode.id)}} = ${sum}\\)`
+                message: `\\(\\mu_{${insertUndcore(checkNode.id)}\\to ${insertUndcore(erasedNode.id)}} = ${messageValue}\\)`
             });
         }
     });
 
-    if (foundMessage) {
-        return {
-            found: true,
-            messages: messages
-        };
-    }
-    return {
-        found: false,
-        messages: []
-    };
+    return { found: foundMessage, messages };
 }
 
-generateMessageOptions(getInitialMessages());
-function generateMessageOptions(correctMessages) {
-    // Get the form element
+/**
+ * ### FUNCTION UPDATED ###
+ * Determines the correct messages from Bit Nodes to Check Nodes.
+ * This is the "update" step. All known variable nodes send their value
+ * to all their neighbors.
+ * @returns {object} An object indicating if messages were found and the messages themselves.
+ */
+function getBitToCheckMessages() {
+    let messages = [];
+    let foundMessage = false;
+
+    bitNodes.forEach(bitNode => {
+        // A message is sent if the variable node's value is known
+        if (bitNode.value !== '?') {
+            foundMessage = true;
+            const connectedCheckNodes = links
+                .filter(link => link.source === bitNode.id)
+                .map(link => checkNodes.find(n => n.id === link.target));
+
+            connectedCheckNodes.forEach(checkNode => {
+                messages.push({
+                    message: `\\(\\mu_{${insertUndcore(bitNode.id)}\\to ${insertUndcore(checkNode.id)}} = ${bitNode.value}\\)`
+                });
+            });
+        }
+    });
+    return { found: foundMessage, messages };
+}
+
+
+/**
+ * ### FUNCTION UPDATED ###
+ * Generates the multiple-choice quiz options and displays them in the form.
+ */
+function generateMessageOptions() {
     const form = document.getElementById('form1');
     form.innerHTML = '';
+    const questionPrompt = document.getElementById('awgnTopQuestion');
 
-    const options = [];
+    let options = [];
+    let correctMessages;
 
-    console.log(correctMessages)
+    if (currentDirection === 'check-to-bit') {
+        questionPrompt.innerHTML = `Consider the Tanner graph below. Messages are being passed from <b>check nodes (right) to variable nodes (left)</b>. Identify the messages in this round by selecting the correct option.`;
+        correctMessages = getCheckToBitMessages();
 
-    // Option 1: Correct messages
-    if (correctMessages.found) {
-        options.push({
-            id: 'correct',
-            messages: correctMessages.messages,
-            label: 'Messages passing in this round:'
-        });
-    } else {
-        options.push({
-            id: 'correct',
-            messages: [{ message: "No message will be sent. The process is over." }],
-            label: 'Messages passing in this round:'
-        });
-    }
+        options.push({ id: 'correct', messages: correctMessages.found ? correctMessages.messages : [{ message: "No recovery is possible in this step." }] });
 
-    // Option 2: Wrong direction messages
-    const wrongDirectionMessages = [];
-    if (currentDirection === 'left-to-right') {
-        bitNodes.forEach(node => {
-            if (!node.peeled && node.value === '?') {
-                const connections = links.filter(link =>
-                    link.source === node.id &&
-                    !checkNodes.find(n => n.id === link.target).peeled
-                );
-                if (connections.length === 1) {
-                    const checkNodeId = connections[0].target;
-                    wrongDirectionMessages.push({
-                        from: node.id,
-                        to: checkNodeId,
-                        message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(checkNodeId)}} = ${Math.random() < 0.5 ? 0 : 1}\\)`
-                    });
+        const wrongDirection = getBitToCheckMessages();
+        ensureNonEmpty(wrongDirection.messages);
+        options.push({ id: 'wrong-direction', messages: wrongDirection.messages });
+
+        let invalidDegreeMessages = [];
+        checkNodes.forEach(node => {
+            if (!node.peeled) {
+                const erasedCount = links.filter(link => link.target === node.id && bitNodes.find(n => n.id === link.source).value === '?').length;
+                if (erasedCount > 1) {
+                    const bitNodeId = links.find(link => link.target === node.id).source;
+                    invalidDegreeMessages.push({ message: `\\(\\mu_{${insertUndcore(node.id)}\\to ${insertUndcore(bitNodeId)}} = ${Math.floor(Math.random()*2)}\\)` });
                 }
             }
         });
-    }
-    ensureNonEmpty(wrongDirectionMessages);
-    options.push({
-        id: 'wrong-direction',
-        messages: wrongDirectionMessages,
-        label: 'Messages passing in this round:'
-    });
+        ensureNonEmpty(invalidDegreeMessages);
+        options.push({ id: 'invalid-degree', messages: invalidDegreeMessages });
 
-    // Option 3: Invalid degree messages
-    let invalidDegreeMessages = [];
-    checkNodes.forEach(node => {
-        if (!node.peeled) {
-            const connections = links.filter(link =>
-                link.target === node.id &&
-                !bitNodes.find(n => n.id === link.source).peeled
-            );
-            if (connections.length > 1) {
-                const bitNodeId = connections[0].source;
-                invalidDegreeMessages.push({
-                    from: node.id,
-                    to: bitNodeId,
-                    message: `\\(\\mu_{${insertUnderscore(node.id)}\\to ${insertUnderscore(bitNodeId)}} = ${Math.random() < 0.5 ? 0 : 1}\\)`
-                });
+    } else { // bit-to-check
+        questionPrompt.innerHTML = `Consider the Tanner graph below. Messages are being passed from <b>variable nodes (left) to check nodes (right)</b>. Identify the messages in this round by selecting the correct option.`;
+        correctMessages = getBitToCheckMessages(); // This now returns correct messages
+
+        // The correct answer option
+        options.push({ id: 'correct', messages: correctMessages.found ? correctMessages.messages : [{ message: "No updates can be sent." }] });
+
+        // Distractor: The messages for the wrong direction (recovery)
+        const wrongDirection = getCheckToBitMessages();
+        ensureNonEmpty(wrongDirection.messages);
+        options.push({ id: 'wrong-direction', messages: wrongDirection.messages });
+
+        // Distractor: A message from an erased ('?') node, which is invalid
+        let invalidSourceMessages = [];
+        const erasedNode = bitNodes.find(node => node.value === '?');
+        if (erasedNode) {
+            const connection = links.find(link => link.source === erasedNode.id);
+            if (connection) {
+                invalidSourceMessages.push({ message: `\\(\\mu_{${insertUndcore(erasedNode.id)}\\to ${insertUndcore(connection.target)}} = ${Math.floor(Math.random()*2)}\\)` });
             }
         }
-    });
-
-    if (invalidDegreeMessages.length === 0) {
-        invalidDegreeMessages = generateInvalidMessages(2);
-    }
-    options.push({
-        id: 'invalid-degree',
-        messages: invalidDegreeMessages,
-        label: 'Messages passing in this round:'
-    });
-
-    // Option 4: Process over or unconnected node messages
-    if (!correctMessages.found) {
-        const invalidMessages = generateInvalidMessages(2);
-        ensureNonEmpty(invalidMessages);
-        options.push({
-            id: 'invalid',
-            messages: invalidMessages,
-            label: 'Messages passing in this round:'
-        });
-    } else {
-        options.push({
-            id: 'process-over',
-            messages: [{ message: "No message will be sent. The process is over." }],
-            label: 'Messages passing in this round:'
-        });
+        ensureNonEmpty(invalidSourceMessages);
+        options.push({ id: 'invalid-source', messages: invalidSourceMessages });
     }
 
-    // Shuffle and display options
+    // Add a generic "No message sent" distractor
+    options.push({ id: 'no-message', messages: [{ message: "No message will be sent." }] });
+
     const shuffledOptions = shuffleArray(options);
-    shuffledOptions.forEach((option, index) => {
+    shuffledOptions.forEach((option) => {
         const div = document.createElement('div');
         div.className = 'option';
-        div.style.paddingTop = '0.4em'
-
-
+        div.style.paddingTop = '0.4em';
         const radio = document.createElement('input');
         radio.type = 'radio';
         radio.name = 'message-set';
         radio.id = option.id;
-        radio.value = index;
-
         const label = document.createElement('label');
         label.htmlFor = option.id;
-
-        // Create separate spans for label and messages with styling
-        const labelSpan = document.createElement('span');
-        labelSpan.textContent = option.label;
-        // labelSpan.style.display = 'block';
-        // labelSpan.style.marginBottom = '12px';  // Adjust this value to control spacing
-
-        const messagesSpan = document.createElement('span');
-        messagesSpan.style.display = 'block'
-        // messagesSpan.style.paddingTop = '0.4em'
-        messagesSpan.innerHTML = option.messages.map(msg => msg.message || msg).join(', ');
-
-        label.appendChild(labelSpan);
-        label.appendChild(messagesSpan)
-
+        label.innerHTML = `<span>${option.messages.map(msg => msg.message).join(', ')}</span>`;
         div.appendChild(radio);
         div.appendChild(label);
         form.appendChild(div);
     });
-}
 
-// Function to generate invalid messages between unconnected nodes
-function generateInvalidMessages(count) {
-    const invalidMessages = [];
-    const bitNodesUnconnected = bitNodes.filter(bitNode =>
-        !links.some(link => link.source === bitNode.id || link.target === bitNode.id)
-    );
-    const checkNodesUnconnected = checkNodes.filter(checkNode =>
-        !links.some(link => link.source === checkNode.id || link.target === checkNode.id)
-    );
-
-    while (invalidMessages.length < count) {
-        let bitNode, checkNode;
-
-        if (bitNodesUnconnected.length > 0 && checkNodesUnconnected.length > 0) {
-            bitNode = bitNodesUnconnected[Math.floor(Math.random() * bitNodesUnconnected.length)];
-            checkNode = checkNodesUnconnected[Math.floor(Math.random() * checkNodesUnconnected.length)];
-        } else {
-            // Fallback: Pick any two random nodes (not necessarily unconnected)
-            bitNode = bitNodes[Math.floor(Math.random() * bitNodes.length)];
-            checkNode = checkNodes[Math.floor(Math.random() * checkNodes.length)];
-        }
-
-        invalidMessages.push({
-            from: bitNode.id,
-            to: checkNode.id,
-            message: `\\(\\mu_{${insertUnderscore(bitNode.id)}\\to ${insertUnderscore(checkNode.id)}} = ${Math.random() < 0.5 ? 0 : 1}\\)`
-        });
-
-        // Remove selected nodes to avoid duplicates
-        bitNodesUnconnected.splice(bitNodesUnconnected.indexOf(bitNode), 1);
-        checkNodesUnconnected.splice(checkNodesUnconnected.indexOf(checkNode), 1);
-    }
-
-    return invalidMessages;
-}
-
-// Function to ensure message array is not empty
-function ensureNonEmpty(messages) {
-    if (messages.length === 0) {
-        messages.push(generateInvalidMessages(1)[0]);
+    if (typeof MathJax !== 'undefined') {
+        MathJax.typesetPromise();
     }
 }
 
-// Modify NextRound() to use getCurrentRoundMessages
+// --- 6. UI Event Handlers ---
+
+/**
+ * ### FUNCTION UPDATED ###
+ * Handles the "Submit" button click, checks the answer, and provides feedback.
+ */
 function NextRound() {
     const observation = document.getElementById("tannerQuestionObservation");
     const form = document.getElementById('form1');
@@ -687,55 +472,34 @@ function NextRound() {
         return;
     }
 
-    console.log(selectedOption);
-    // Check if the selected option is correct
     if (selectedOption.id === 'correct') {
-        observation.innerHTML = "Correct! Now, let's attempt a full decoding.";
+        observation.innerHTML = "Correct! You've identified the right message passing direction and conditions.";
         observation.style.color = "green";
-    } else if (observation.innerHTML === "Incorrect! Consider what are the \"meaningful\" messages that can be passed in this round.") {
-        observation.innerHTML = "Still incorrect! Please review the theory once again.";
-        observation.style.color = "red";
     } else {
-        observation.innerHTML = "Incorrect! Consider what are the \"meaningful\" messages that can be passed in this round.";
+        let feedback = "Incorrect. ";
+        if (selectedOption.id === 'wrong-direction') {
+            const dir = currentDirection === 'check-to-bit' ? 'check nodes (right) to variable nodes (left)' : 'variable nodes (left) to check nodes (right)';
+            feedback += `Remember the question asked for messages from <b>${dir}</b>.`;
+        } else if (currentDirection === 'check-to-bit' && selectedOption.id === 'invalid-degree') {
+            feedback += "A check node can only resolve a bit's value if it's connected to exactly one unknown bit."
+        } else if (currentDirection === 'bit-to-check') {
+            // Corrected feedback for the bit-to-check direction
+            feedback += "In the update step, messages are sent from all *known* variable nodes (those not marked with '?')."
+        } else {
+            feedback += "Please review the conditions for message passing."
+        }
+        observation.innerHTML = feedback;
         observation.style.color = "red";
     }
-
 }
 
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
-
-
-// Helper function to count current node degrees
-function getNodeDegrees(nodeId) {
-    return links.filter(link =>
-        (link.source === nodeId || link.target === nodeId) &&
-        !bitNodes.find(n => n.id === link.source).peeled &&
-        !checkNodes.find(n => n.id === link.target).peeled
-    ).length;
-}
-
-// Call this function to start the iterative peeling process
-// nextRound();
-
+/**
+ * Handles the "Reset" button click, reloading the page for a new problem.
+ */
 function Reset() {
-    const form = document.getElementById('form1');
-    const observation = document.getElementById("tannerQuestionObservation");
-
-    // Clear all selected options
-    Array.from(form.elements).forEach(el => {
-        if (el.type === "radio" || el.type === "checkbox") {
-            el.checked = false;
-        }
-    });
-
-    // Clear observation message
-    observation.innerHTML = "";
-    observation.style.color = "";
+    document.getElementById("tannerQuestionObservation").innerHTML = "";
+    location.reload();
 }
+
+// --- Initial Execution ---
+generateMessageOptions();
