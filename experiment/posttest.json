@@ -10,9 +10,9 @@
         "d": "At least four rounds are required to complete the decoding."
       },
       "explanations": {
-        "a": "Correct option.",
+        "a": "Correct. Erasures are resolved when a Check node calculates the missing value and sends it to the Variable node. This Check-to-Variable message passing happens in even rounds.",
         "b": "Incorrect. An odd round implies messages from variable to check nodes. Such a round will not be the final one. ",
-        "c": "Incorrect option.  There is no guarantee that two rounds are enough.",
+        "c": "Incorrect option.  There is no guarantee that two rounds are enough.",
         "d": "Incorrect. There is no necessity that at least four rounds are needed."
       },
       "correctAnswer": "a",
@@ -46,7 +46,7 @@
       "explanations": {
         "a": "Incorrect. The peeling decoder is infact a linear decoder",
         "b": "Incorect. Bit-wise MAP and block-wise MAP are too different decoding rules. ",
-        "c": "Correct option.",
+        "c": "Correct option. The peeling decoder works completely when the received vector is uniquely decodable. A block MAP decoder always gives a codeword estimate based on channel characteristics, input distribution, and some tie breaking rules.",
         "d": "Incorrect option. Both the peeling decoder and the block-wise MAP decoder are essentially solving a system of linear equations (for decoding on erasure channels). However the block-wise MAP decoder is allowed to perform more complicated operations than the peeling decoder, which does bit-wise MAP. "
       },
       "correctAnswer": "c",
@@ -61,10 +61,10 @@
         "d": "Messages are passed from variable to check nodes in odd rounds, and from check to variable nodes in even rounds."
       },
       "explanations": {
-        "a": "Incorrect.",
-        "b": "Incorrect.",
-        "c": "Incorrect.",
-        "d": "Correct."
+        "a": "Incorrect. In a bipartite Tanner graph, nodes of the same type (e.g., Check-to-Check) do not pass messages directly.",
+        "b": "Incorrect. Message passing occurs between different node types (Variable $\\leftrightarrow$ Check), not between nodes of the same type.",
+        "c": "Incorrect. The order is reversed. The process initiates with Variable nodes sending their received values to Check nodes.",
+        "d": "Correct. The standard schedule starts with Round 1 (Variable-to-Check) to propagate observed values, followed by Round 2 (Check-to-Variable) to recover erasures."
       },
       "correctAnswer": "d",
       "difficulty": "beginner"
@@ -78,7 +78,7 @@
         "d": "This is true, because peeling decoders can only be used with codes of specific codelengths satisfied by LDPC codes, and not on arbitrary codes."
       },
       "explanations": {
-        "a": "Incorrect.",
+        "a": "Incorrect. The peeling decoder is defined for any code represented by a Tanner graph, though it is most efficient when the graph is sparse (LDPC).",
         "b": "Correct. There is nothing about the peeling decoding algorithm itself which prohibits us from using it for general block codes.",
         "c": "Incorrect. Peeling decoders don't demand a sparse generator or parity check matrix specifically.",
         "d": "Incorrect. Peeling decoding algorithm puts no specific requirement on the codelength."
