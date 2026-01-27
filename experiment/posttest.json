@@ -2,7 +2,7 @@
   "version": 2.0,
   "questions": [
     {
-      "question": "Which statement is true regarding the complete decoding of the codeword using the peeling decoder occur, given that at least one erasure occured?",
+      "question": "1. Which statement is true regarding the complete decoding of the codeword using the peeling decoder occur, given that at least one erasure occured?",
       "answers": {
         "a": "The number of rounds to complete the decoding will be even.",
         "b": "The number of rounds will always be odd, to complete the decoding.",
@@ -19,7 +19,7 @@
       "difficulty": "beginner"
     },
     {
-      "question": "Assume that for a code with minimum distance $>=2$, we transmitted a codeword which was received with a single erasure. How many rounds may be required to correct this erasure using peeling decoding?",
+      "question": "2. Assume that for a code with minimum distance $>=2$, we transmitted a codeword which was received with a single erasure. How many rounds may be required to correct this erasure using peeling decoding?",
       "answers": {
         "a": "1",
         "b": "3",
@@ -36,7 +36,7 @@
       "difficulty": "beginner"
     },
     {
-      "question": "Does the peeling decoder perform block-wise MAP decoding? Select the most correct option",
+      "question": "3. Does the peeling decoder perform block-wise MAP decoding? Select the most correct option",
       "answers": {
         "a": "No, because the peeling decoder is a non-linear decoder.",
         "b": "Yes, because bit-wise MAP is the same as block-wise MAP, in erasure channels, and the peeling decoder indeed implements bit-wise MAP decoding.",
@@ -53,7 +53,7 @@
       "difficulty": "advanced"
     },
     {
-      "question": "The peeling decoder is called a message-passing decoder because",
+      "question": "4. The peeling decoder is called a message-passing decoder because",
       "answers": {
         "a": "Messages are passed between check nodes and other check nodes in each round.",
         "b": "Messages are passed between check nodes and other check nodes in the odd rounds, and between variable nodes in the even rounds.",
@@ -70,7 +70,7 @@
       "difficulty": "beginner"
     },
     {
-      "question": "Select the best option regarding the following statement: 'Peeling decoders are useful to decode only LDPC codes, not general block codes.'",
+      "question": "5. Select the best option regarding the following statement: 'Peeling decoders are useful to decode only LDPC codes, not general block codes.'",
       "answers": {
         "a": "This is true. Peeling decoders need a sparse parity check matrix.",
         "b": "This is not true. Peeling decoders can be useful for any block codes.",
