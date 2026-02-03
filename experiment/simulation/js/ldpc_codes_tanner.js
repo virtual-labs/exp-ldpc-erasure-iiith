@@ -501,5 +501,11 @@ function Reset() {
     location.reload();
 }
 
-// --- Initial Execution ---
-generateMessageOptions();
+window.addEventListener('load', () => {
+    generateMessageOptions();
+    
+    // Check if MathJax is loaded and ready
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+    }
+});
