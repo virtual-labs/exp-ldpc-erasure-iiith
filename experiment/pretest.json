@@ -2,7 +2,7 @@
   "version": 2.0,
   "questions": [
     {
-      "question": "Consider the code $\\mathcal{C} = \\{\\boldsymbol{x_1}=(0,0,0,0,0), \\boldsymbol{x_2}=(1,0,1,0,1), \\boldsymbol{x_3}=(0,1,0,1,1), \\boldsymbol{x_4}=(1,1,1,1,0) \\}$. Suppose a codeword from $\\mathcal{C}$ is transmitted over a $BEC(\\epsilon)$. Choose the option corresponding to the output of ML decoder if the received vector is $\\boldsymbol{y}=(1,?,1,?,0)$.",
+      "question": "1. Consider the code $\\mathcal{C} = \\{\\boldsymbol{x_1}=(0,0,0,0,0), \\boldsymbol{x_2}=(1,0,1,0,1), \\boldsymbol{x_3}=(0,1,0,1,1), \\boldsymbol{x_4}=(1,1,1,1,0) \\}$. Suppose a codeword from $\\mathcal{C}$ is transmitted over a $BEC(\\epsilon)$. Choose the option corresponding to the output of ML decoder if the received vector is $\\boldsymbol{y}=(1,?,1,?,0)$.",
       "answers": {
         "a": "$(0,0,0,0,0)$",
         "b": "$(1,1,1,1,0)$",
@@ -19,7 +19,7 @@
       "difficulty": "advanced"
     },
     {
-      "question": "Choose the correct parity-check matrix that corresponds to the given Tanner graph: <br> <div style=\"text-align: center;\"><img src=\"./images/tanner_pretest.png\" style=\"width: 250px; height: auto;\"></div>",
+      "question": "2. Choose the correct parity-check matrix that corresponds to the given Tanner graph: <br> <div style=\"text-align: center;\"><img src=\"./images/tanner_pretest.png\" style=\"width: 250px; height: auto;\"></div>",
       "answers": {
         "a": "$H = \\begin{bmatrix} 1 & 0 & 1 & 1 & 0 & 0 \\\\ 0 & 1 & 1 & 0 & 1 & 0 \\\\ 0 & 0 & 0 & 1 & 1 & 1 \\end{bmatrix}$",
         "b": "$H = \\begin{bmatrix} 1 & 0 & 0 & 1 & 0 & 1 \\\\ 0 & 1 & 0 & 1 & 0 & 0 \\\\ 0 & 0 & 1 & 0 & 1 & 1 \\end{bmatrix}$",
@@ -36,7 +36,7 @@
       "difficulty": "intermediate"
     },
     {
-      "question": "Find the vector $(x, y) \\in \\mathbb{F}_3^2$ which satisfies the following constraints: $$ \\begin{aligned} x + 2y &= 2 \\\\ 2x - y &= 1 \\end{aligned} $$",
+      "question": "3. Find the vector $(x, y) \\in \\mathbb{F}_3^2$ which satisfies the following constraints: $$ \\begin{aligned} x + 2y &= 2 \\\\ 2x - y &= 1 \\end{aligned} $$",
       "answers": {
         "a": "$(\\frac{4}{5}, \\frac{3}{5})$",
         "b": "$(1, 2)$",
@@ -54,7 +54,7 @@
     },
     
     {
-      "question": "Write the parity check equations corresponding to the following Tanner graph <br> <div style=\"text-align: center;\"><img src=\"./images/tanner_pretest_eqsn.svg\" style=\"width: 250px; height: auto;\"></div>",
+      "question": "4. Write the parity check equations corresponding to the following Tanner graph <br> <div style=\"text-align: center;\"><img src=\"./images/tanner_pretest_eqsn.svg\" style=\"width: 250px; height: auto;\"></div>",
       "answers": {
         "a": "$x_0 + x_2 + x_3 + x_5 = 1, x_1 = 1, x_0 + x_2 + x_3 + x_5 = 0$",
         "b": "$x_0 + x_2 + x_4 = 0, x_1 + x_3 + x_5 = 0, x_2 + x_4 + x_6 = 0$",

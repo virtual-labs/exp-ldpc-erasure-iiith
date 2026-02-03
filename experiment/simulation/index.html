@@ -143,7 +143,18 @@
             </div>
         </div>
     </div>
-
+    <script>
+    window.MathJax = {
+        tex: { inlineMath: [['\\(', '\\)']] },
+        startup: {
+        pageReady: () => {
+            return MathJax.startup.defaultPageReady().then(() => {
+            // This ensures MathJax is ready before we try to call typeset
+            });
+        }
+        }
+    };
+    </script>
     <script src="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/js/script.js"></script>
     <script src="./js/ldpc_codes_tanner.js"></script>
 </body>

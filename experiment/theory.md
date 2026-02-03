@@ -68,7 +68,7 @@ We draw the initial Tanner graph in the following figure.
 <!-- ![image]() -->
 <p align="center">
   <img src="figures/basictanner(drawiofile).jpg" height="400"/>
-  <figcaption> The Tanner graph for the code with given parity-check matrix </figcaption>
+  <figcaption> Fig 1. The Tanner graph for the code with given parity-check matrix </figcaption>
 </p>
 
 ---
@@ -82,7 +82,7 @@ In the next round, messages (which are the same as the values of the variable no
 <!-- ![image]() -->
 <p align="center">
   <img src="figures/stage1.jpg" height="400"/>
-  <figcaption> Round 1: Messages being passed from non-erased variable nodes to check nodes </figcaption>
+  <figcaption> Fig 2. Round 1: Messages being passed from non-erased variable nodes to check nodes </figcaption>
 </p>
 
 ---
@@ -94,7 +94,7 @@ At the end of this round, the edges on which message were passed in this round w
 <!-- ![image]() -->
 <p align="center">
   <img src="figures/stage1complete.jpg" height="400"/>
-  <figcaption> End of Round 1: Edges on which messages were passed in this round are blurred out as dotted edges. The check nodes show updated bits </figcaption>
+  <figcaption> Fig 3. End of Round 1: Edges on which messages were passed in this round are blurred out as dotted edges. The check nodes show updated bits </figcaption>
 </p>
 
 ---
@@ -106,7 +106,7 @@ Now, round 2 begins. In this round, messages will be passed from the RHS (Check)
 <!-- ![image]() -->
 <p align="center">
   <img src="figures/stage2begins.jpg" height="400"/>
-  <figcaption> Round 2 begins. Check nodes with degree-1 (only one connected continuous(non-dotted) edge, send their value as message to all variable nodes connected via such non-dotted edges incident on them). Thus $z_2$ sends a message to $x_5$ in this case. </figcaption>
+  <figcaption> Fig 4. Round 2 begins. Check nodes with degree-1 (only one connected continuous(non-dotted) edge, send their value as message to all variable nodes connected via such non-dotted edges incident on them). Thus $z_2$ sends a message to $x_5$ in this case. </figcaption>
 
 </p>
 
@@ -119,7 +119,7 @@ At the end of this round, those erased variable nodes which have received messag
 <!-- ![image]() -->
 <p align="center">
   <img src="figures/stage2complete.jpg" height="400"/>
-  <figcaption> Round 2 is complete. The message $x_5$ which was originally erased is now decoded, and this is updated. The edge on which message was passed in this round nows becomes a dotted edge. The value of $z_2$ is also updated from $1$ to $0$, indicating that it is now satisfied. </figcaption>
+  <figcaption> Fig 5. Round 2 is complete. The message $x_5$ which was originally erased is now decoded, and this is updated. The edge on which message was passed in this round nows becomes a dotted edge. The value of $z_2$ is also updated from $1$ to $0$, indicating that it is now satisfied. </figcaption>
 
 </p>
 
@@ -132,7 +132,7 @@ The iterations now continue, as before. Messages are passed from variable to che
 <!-- ![image]() -->
 <p align="center">
   <img src="figures/stage3begins.jpg" height="400"/>
-  <figcaption> Round 3 begins. The next round begins, with newly updated variable node $x_5$ now sending messages to the check nodes it is connected to, i.e., $z_0$ and $z_1$. These check node values are updated. </figcaption>
+  <figcaption> Fig 6. Round 3 begins. The next round begins, with newly updated variable node $x_5$ now sending messages to the check nodes it is connected to, i.e., $z_0$ and $z_1$. These check node values are updated. </figcaption>
 
 </p>
 
@@ -143,7 +143,7 @@ The iterations now continue, as before. Messages are passed from variable to che
 <!-- ![image]() -->
 <p align="center">
   <img src="figures/stage3complete.jpg" height="400"/>
-  <figcaption>  Round 3 is complete. After updating the values of the check nodes, the edges from $x_5$ to $z_0$ and $z_1$ are used up and made into dotted edges. This is the end of the present round. </figcaption>
+  <figcaption>  Fig 7. Round 3 is complete. After updating the values of the check nodes, the edges from $x_5$ to $z_0$ and $z_1$ are used up and made into dotted edges. This is the end of the present round. </figcaption>
 
 </p>
 
@@ -154,7 +154,7 @@ The iterations now continue, as before. Messages are passed from variable to che
 <!-- ![image]() -->
 <p align="center">
   <img src="figures/round4.jpg" height="400"/>
-  <figcaption> Round 4 begins. The next round begins with the updated check nodes becoming degree $1$. Thus $z_0$ and $z_1$ send their updated values to $x_3$. </figcaption>
+  <figcaption> Fig 8. Round 4 begins. The next round begins with the updated check nodes becoming degree $1$. Thus $z_0$ and $z_1$ send their updated values to $x_3$. </figcaption>
 
 </p>
 
@@ -165,7 +165,7 @@ The iterations now continue, as before. Messages are passed from variable to che
 <!-- ![image]() -->
 <p align="center">
   <img src="figures/round4completedeccomplete.jpg" height="400"/>
-  <figcaption> Round 4 is complete. These values which are received at $x_3$ are identical. Hence the value of $x_3$ is updated from erasure symbol to $1$. All symbols have been decoded in this case, hence the decoding is complete. Observe that the final estimate of the decoder is the bits on the left, $(1,0,0,1,1,1)$. This is the same as the transmitted codeword. Hence in this case the decoder's estimate is correct.</figcaption>
+  <figcaption> Fig 9. Round 4 is complete. These values which are received at $x_3$ are identical. Hence the value of $x_3$ is updated from erasure symbol to $1$. All symbols have been decoded in this case, hence the decoding is complete. Observe that the final estimate of the decoder is the bits on the left, $(1,0,0,1,1,1)$. This is the same as the transmitted codeword. Hence in this case the decoder's estimate is correct.</figcaption>
 
 </p>
 
@@ -182,7 +182,7 @@ Consider the same transmitted codeword $\bm{x}=(1,0,0,1,1,1)$. In this case, we 
 <!-- ![image]() -->
 <p align="center">
   <img src="figures/partiallydecodable.jpg" height="400"/>
-  <figcaption> Peeling decoder cannot proceed with decoding after round 1, as there is no check node with degree=1 at this point. Hence the peeling decoder declares only the first three bits as decoded bits. </figcaption>
+  <figcaption> Fig 10. Peeling decoder cannot proceed with decoding after round 1, as there is no check node with degree=1 at this point. Hence the peeling decoder declares only the first three bits as decoded bits. </figcaption>
 
 </p>
 
