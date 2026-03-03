@@ -32,12 +32,14 @@
         <div class="column">
             <div class="v-tabs">
                 <ul class="taskbar-tabs">
-                    <li class="is-active" id="Task1">
+
+                    <li id="Task1" onclick="window.location.href = 'index.html';">
                         <a>
                             Tanner Graph for LDPC Codes
                         </a>
                     </li>
-                    <li id="Task2" onclick="window.location.href = 'decoder.html';">
+
+                    <li class="is-active" id="Task2">
                         <a>
                             Peeling Decoder
                         </a>
@@ -69,8 +71,8 @@
                         <b>Procedure:</b>
 
                         <li>
-                            <strong>Step 1:</strong> Select the option corresponding to the correct message(s) passed in
-                            this round of peeling decoding for the given Tanner graph.
+                            <strong>Step 1:</strong> Select the option corresponding to the final estimate obtained
+                            after peeling decoding for the given Tanner graph.
                         </li>
                         <li>
                             <strong>Step 2:</strong> Click on "Submit" to check your answer. After submitting, the
@@ -81,8 +83,8 @@
                             option and clicking on "Submit". If your answer is correct, you can try a new question by
                             clicking on the "New Question" button.
                         <li>
-                            <strong>Step 4:</strong> You can proceed to the next subexperiment by clicking on the
-                            "Peeling Decoder" tab.
+                            <strong>Step 4:</strong> You can go back to the previous subexperiment by clicking on the
+                            "Tanner Graph for LDPC Codes" tab.
                         </li>
 
 
@@ -98,9 +100,9 @@
         <div class="column is-11-desktop is-12-tablet is-12-mobile">
             <div class="v-datalist-container components-list is-centered is-flex-direction-column is-justify-content-center is-align-content-center"
                 id="questionStatement">
-                <p id="awgnTopQuestion"> Consider the Tanner graph below. Messages are being passed from right to left
-                    in this round of peeling decoding. Identify the messages in this round by selecting the right
-                    option.</p>
+
+                <p id="awgnTopQuestion"> The received vector from BEC channel is shown. Execute peeling decoding and
+                    select the final estimate obtained.</p>
                 <div class="channelBlock">
                     <div style="position: relative; top: 20px;" id="tannerSizeDiv">
                         <p id="tannerGraph"></p> &nbsp;
@@ -143,20 +145,9 @@
             </div>
         </div>
     </div>
-    <script>
-    window.MathJax = {
-        tex: { inlineMath: [['\\(', '\\)']] },
-        startup: {
-        pageReady: () => {
-            return MathJax.startup.defaultPageReady().then(() => {
-            // This ensures MathJax is ready before we try to call typeset
-            });
-        }
-        }
-    };
-    </script>
+
     <script src="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/js/script.js"></script>
-    <script src="./js/ldpc_codes_tanner.js"></script>
+    <script src="./js/ldpc_decoder.js"></script>
 </body>
 
 </html>

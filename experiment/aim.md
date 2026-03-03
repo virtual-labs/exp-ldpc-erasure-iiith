@@ -1,1 +1,1 @@
-### Aim of the experiment
+The aim of this experiment is to provide the user with an understanding of the working of the peeling decoder for decoding an LDPC code used on an erasure channel. 
