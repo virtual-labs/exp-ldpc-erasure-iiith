@@ -450,8 +450,8 @@ function generateMessageOptions() {
         form.appendChild(div);
     });
 
-    if (typeof MathJax !== 'undefined') {
-        MathJax.typesetPromise();
+    if (typeof MathJax !== 'undefined' && typeof MathJax.typesetPromise === 'function') {
+        MathJax.typesetPromise().catch((err) => console.error('MathJax error: ', err));
     }
 }
 
@@ -505,7 +505,7 @@ window.addEventListener('load', () => {
     generateMessageOptions();
     
     // Check if MathJax is loaded and ready
-    if (window.MathJax && window.MathJax.typesetPromise) {
-        window.MathJax.typesetPromise();
+    if (typeof MathJax !== 'undefined' && typeof MathJax.typesetPromise === 'function') {
+        MathJax.typesetPromise().catch((err) => console.error('MathJax error: ', err));
     }
 });

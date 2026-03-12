@@ -13,6 +13,22 @@
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/peeling.css">
 
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(', '\\)']] },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        // Typeset any dynamically added math that might have been missed
+                        if (typeof MathJax.typesetPromise === 'function') {
+                            MathJax.typesetPromise();
+                        }
+                    });
+                }
+            }
+        };
+    </script>
+
     <script type="text/javascript" id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
     <!-- Load d3.js -->
@@ -91,7 +107,6 @@
             </div>
         </div>
     </div>
-    </div>
     <br>
 
     <div class="columns is-centered">
@@ -143,18 +158,6 @@
             </div>
         </div>
     </div>
-    <script>
-    window.MathJax = {
-        tex: { inlineMath: [['\\(', '\\)']] },
-        startup: {
-        pageReady: () => {
-            return MathJax.startup.defaultPageReady().then(() => {
-            // This ensures MathJax is ready before we try to call typeset
-            });
-        }
-        }
-    };
-    </script>
     <script src="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/js/script.js"></script>
     <script src="./js/ldpc_codes_tanner.js"></script>
 </body>
