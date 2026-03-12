@@ -51,7 +51,6 @@ H=\begin{bmatrix}1&0&0&1&1&1\\
 $$
 
 Observe that any two columns of this matrix are linearly independent, so this code is capable of correcting any erasure pattern with upto two erasures. In fact, some patterns with upto three erasures can also get corrected by a block-wise MAP decoder. But here, we will focus on at most two erasures. Further, the generator matrix of this code can be obtained as
-%%%%
 
 $$
 G=\begin{bmatrix}1&1&0&1&0&0\\
